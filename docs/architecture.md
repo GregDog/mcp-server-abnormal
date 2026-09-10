@@ -18,7 +18,7 @@ internal/abnormal       REST client, pagination, redaction
 internal/tools          MCP tool handlers (read / response / evidence)
 ```
 
-There is no built-in MCP authentication in HTTP mode. The Abnormal API token is process-wide configuration. Remote deployment requires a trusted external authentication reverse-proxy layer.
+There is no built-in MCP authentication in HTTP mode. The Abnormal API token is process-wide configuration. This server is intended for **local use** (stdio or loopback HTTP). Network exposure without your own access controls is unsupported.
 
 ## Security model
 

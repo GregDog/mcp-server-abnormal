@@ -34,6 +34,9 @@ func TestFromEnvDefaults(t *testing.T) {
 	if cfg.AllowResponse || cfg.AllowEvidenceDownload {
 		t.Fatal("expected response/evidence disabled by default")
 	}
+	if cfg.HTTPMaxRetries != DefaultHTTPMaxRetry {
+		t.Fatalf("http max retries: got %d", cfg.HTTPMaxRetries)
+	}
 }
 
 func TestFromEnvAllowFlags(t *testing.T) {

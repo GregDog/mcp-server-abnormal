@@ -113,7 +113,11 @@ Full list: [docs/configuration.md](docs/configuration.md).
 
 ## Security
 
-Read tools are always on. Response and evidence tools require explicit opt-in. See [docs/security.md](docs/security.md) and [SECURITY.md](SECURITY.md).
+Read tools are always on. Response and evidence tools require explicit opt-in.
+
+**Local use only:** this server has no built-in authentication or RBAC. Use stdio (default) or loopback HTTP on the same machine. Do not expose the HTTP endpoint on a network without your own access controls.
+
+See [docs/security.md](docs/security.md) and [SECURITY.md](SECURITY.md).
 
 ## Development
 

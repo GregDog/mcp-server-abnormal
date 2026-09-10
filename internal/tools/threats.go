@@ -215,11 +215,15 @@ func (h *handlers) listThreatLinks(ctx context.Context, _ *mcp.CallToolRequest, 
 	if resp.TenantName != nil {
 		out.TenantName = *resp.TenantName
 	}
-	for _, l := range resp.Links {
+	for i, l := range resp.Links {
+		if i >= maxBoundedItems {
+			break
+		}
 		out.Links = append(out.Links, threatLinkItem{
 			AbxMessageID: l.AbxMessageID, AbxMessageIDStr: l.AbxMessageIDStr,
 			DomainLink: l.DomainLink, LinkType: l.LinkType, Source: l.Source,
-			DisplayText: l.DisplayText, LinkURL: l.LinkURL,
+			DisplayText: trimString(l.DisplayText, maxBoundedString),
+			LinkURL:     trimString(l.LinkURL, maxBoundedString),
 		})
 	}
 	return nil, out, nil
@@ -237,10 +241,13 @@ func (h *handlers) listThreatAttachments(ctx context.Context, _ *mcp.CallToolReq
 	if resp.TenantName != nil {
 		out.TenantName = *resp.TenantName
 	}
-	for _, a := range resp.Attachments {
+	for i, a := range resp.Attachments {
+		if i >= maxBoundedItems {
+			break
+		}
 		out.Attachments = append(out.Attachments, threatAttachmentItem{
 			AbxMessageID: a.AbxMessageID, AbxMessageIDStr: a.AbxMessageIDStr,
-			AttachmentName: a.AttachmentName,
+			AttachmentName: trimString(a.AttachmentName, maxBoundedString),
 		})
 	}
 	return nil, out, nil

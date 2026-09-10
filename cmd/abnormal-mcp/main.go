@@ -174,5 +174,6 @@ Environment:
   ABNORMAL_MCP_HTTP_ADDR              HTTP listen address when transport=http (default 127.0.0.1:8090, loopback only)
   ABNORMAL_MCP_HTTP_JSON              Use application/json responses for HTTP transport
   ABNORMAL_MCP_HTTP_MAX_BODY_BYTES    Max HTTP request body size (default 33554432)
+  ABNORMAL_HTTP_MAX_RETRIES           Retries on 429/502/503/504 (default 2; 0 disables)
 `)
 }

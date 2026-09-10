@@ -16,6 +16,15 @@ Abnormal authorization allows the operation
 
 Use least-privilege API tokens with only the endpoint groups your workflow needs.
 
+## Intended deployment: local use
+
+This MCP server is designed for **local analyst workflows** (Cursor, Claude Desktop, or a local agent on the same machine). It does **not** implement authentication, authorization, or network access controls beyond basic HTTP hardening.
+
+- **Default transport:** stdio (recommended). The Abnormal token stays in the local process environment.
+- **HTTP transport:** loopback bind only by default (`127.0.0.1:8090`). No built-in MCP client authentication.
+- **Do not expose** the HTTP endpoint on a LAN or the public internet and assume it is safe. There is no RBAC, API gateway, or session layer in this project.
+- If you need shared or remote access, you must supply your own external controls (VPN, firewall, authenticated proxy). That is **out of scope** for this server.
+
 ## Token handling
 
 - Tokens are read from `ABNORMAL_API_TOKEN`.
@@ -25,22 +34,25 @@ Use least-privilege API tokens with only the endpoint groups your workflow needs
 
 ## HTTP transport
 
-The Streamable HTTP transport (`ABNORMAL_MCP_TRANSPORT=http`) is intended for **local development and trusted networks only**.
+The Streamable HTTP transport (`ABNORMAL_MCP_TRANSPORT=http`) is for **local development on the same machine**.
 
 - **Default bind:** `127.0.0.1:8090` (loopback). The server does not default to `0.0.0.0` or bare `:port` addresses.
 - **No built-in authentication:** HTTP mode does not validate MCP client identity. Anyone who can reach the endpoint can invoke tools using the server's configured Abnormal token.
-- **Do not expose directly to the public internet.**
-- **Remote or network deployment** requires a trusted external layer (reverse proxy, VPN, or private network) that performs authentication and access control before traffic reaches `abnormal-mcp`.
 - **Non-loopback binds** log a startup warning.
 - Request body size is capped (`ABNORMAL_MCP_HTTP_MAX_BODY_BYTES`, default 32 MiB). Server read/write/idle timeouts apply.
 - No debug or pprof endpoints are registered.
 
 ## Request bounds
 
-- HTTP timeout: 30 seconds
-- Default page size: 20
-- Maximum page size: 50
-- No automatic retries in Phase 1
+- Outbound Abnormal API timeout: 30 seconds per attempt
+- Automatic retries: `ABNORMAL_HTTP_MAX_RETRIES` (default 2) on HTTP 429, 502, 503, and 504 with exponential backoff and `Retry-After` support
+- Default page size: 20; maximum page size: 50
+- Outbound JSON responses capped at 16 MiB; text/CSV at 4 MiB
+- Tool outputs bound large slices (contacts, timelines, genome entries, link lists)
+
+## Response action audit log
+
+Confirmed response tool executions (`confirm: true`) emit structured `slog` info lines with tool name, resource type/id, and action. Tokens and message bodies are never logged.
 
 ## Reporting vulnerabilities
 

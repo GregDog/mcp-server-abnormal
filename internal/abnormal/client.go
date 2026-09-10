@@ -316,10 +316,15 @@ type AbuseMailboxUnanalyzedMessage struct {
 // New constructs the Abnormal API client. It does not call the API.
 func New(cfg config.Config) (API, error) {
 	baseURL := strings.TrimRight(cfg.BaseURL, "/")
+	maxRetries := cfg.HTTPMaxRetries
+	if maxRetries < 0 {
+		maxRetries = 0
+	}
 	return &client{
-		baseURL:  baseURL,
-		token:    cfg.APIToken,
-		mockData: cfg.MockData,
+		baseURL:    baseURL,
+		token:      cfg.APIToken,
+		mockData:   cfg.MockData,
+		maxRetries: maxRetries,
 		http: &http.Client{
 			Timeout: httpTimeout,
 		},
@@ -327,10 +332,11 @@ func New(cfg config.Config) (API, error) {
 }
 
 type client struct {
-	baseURL  string
-	token    string
-	mockData bool
-	http     *http.Client
+	baseURL    string
+	token      string
+	mockData   bool
+	maxRetries int
+	http       *http.Client
 }
 
 func (c *client) ListThreats(ctx context.Context, params ListThreatsParams) (PaginatedThreats, error) {
@@ -512,24 +518,21 @@ func (c *client) doText(ctx context.Context, method, path string, query url.Valu
 	if c.mockData {
 		req.Header.Set("Mock-Data", "True")
 	}
-	resp, err := c.http.Do(req)
+	resp, err := c.roundTrip(ctx, req)
 	if err != nil {
-		return "", RedactError(err)
+		return "", err
 	}
 	defer resp.Body.Close()
-	data, err := io.ReadAll(io.LimitReader(resp.Body, 4*1024*1024))
+	data, err := readLimitedBody(resp, MaxTextResponseBytes)
 	if err != nil {
 		return "", fmt.Errorf("read response: %w", err)
-	}
-	if resp.StatusCode == http.StatusTooManyRequests {
-		return "", fmt.Errorf("rate limited (HTTP 429)")
 	}
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		msg := strings.TrimSpace(string(data))
 		if msg == "" {
 			msg = resp.Status
 		}
-		return "", fmt.Errorf("HTTP %d: %s", resp.StatusCode, Redact(msg))
+		return "", HTTPStatusError{StatusCode: resp.StatusCode, Message: msg}
 	}
 	return string(data), nil
 }
@@ -565,26 +568,23 @@ func (c *client) doJSON(ctx context.Context, method, path string, query url.Valu
 		req.Header.Set("Mock-Data", "True")
 	}
 
-	resp, err := c.http.Do(req)
+	resp, err := c.roundTrip(ctx, req)
 	if err != nil {
-		return RedactError(err)
+		return err
 	}
 	defer resp.Body.Close()
 
-	data, err := io.ReadAll(io.LimitReader(resp.Body, 16*1024*1024))
+	data, err := readLimitedBody(resp, MaxJSONResponseBytes)
 	if err != nil {
 		return fmt.Errorf("read response: %w", err)
 	}
 
-	if resp.StatusCode == http.StatusTooManyRequests {
-		return fmt.Errorf("rate limited (HTTP 429)")
-	}
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		msg := strings.TrimSpace(string(data))
 		if msg == "" {
 			msg = resp.Status
 		}
-		return fmt.Errorf("HTTP %d: %s", resp.StatusCode, Redact(msg))
+		return HTTPStatusError{StatusCode: resp.StatusCode, Message: msg}
 	}
 	if out == nil {
 		return nil

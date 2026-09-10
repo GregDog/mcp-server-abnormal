@@ -137,6 +137,7 @@ func (h *handlers) searchRemediate(ctx context.Context, _ *mcp.CallToolRequest, 
 	preview.Confirmed = true
 	preview.ActivityLogID = resp.ActivityLogID
 	preview.Summary = fmt.Sprintf("Remediation accepted (activity_log_id=%d). Poll abnormal_search_activity_get for status.", resp.ActivityLogID)
+	logResponseAction("abnormal_search_remediate", "search", fmt.Sprintf("activity_log_id=%d", resp.ActivityLogID), in.Action)
 	return nil, preview, nil
 }
 
@@ -175,6 +176,7 @@ func (h *handlers) threatRemediate(ctx context.Context, _ *mcp.CallToolRequest, 
 		preview.TenantName = *resp.TenantName
 	}
 	preview.Summary = fmt.Sprintf("Threat %s %s (action_id=%s). Poll abnormal_threat_action_get for status.", in.ID, in.Action, resp.ActionID)
+	logResponseAction("abnormal_threat_remediate", "threat", in.ID, in.Action)
 	return nil, preview, nil
 }
 

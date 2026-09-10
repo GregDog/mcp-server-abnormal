@@ -71,8 +71,8 @@ func warnIfNonLoopbackHTTPBind(addr string) {
 	if config.IsLoopbackHTTPAddr(addr) {
 		return
 	}
-	slog.Warn("http bind address is not loopback; built-in HTTP authentication is not enabled",
+	slog.Warn("http bind address is not loopback; this server has no authentication and is intended for local use only",
 		"addr", addr,
-		"guidance", "do not expose this server directly to the public internet; place a trusted authentication reverse proxy in front",
+		"guidance", "use stdio transport for Cursor/Claude Desktop; do not expose this endpoint on a network without your own access controls",
 	)
 }

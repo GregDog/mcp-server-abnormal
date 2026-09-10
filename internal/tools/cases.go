@@ -155,9 +155,10 @@ func (h *handlers) getCase(ctx context.Context, _ *mcp.CallToolRequest, in getIn
 	return nil, caseDetail{
 		CaseID: resp.CaseID, CaseStatus: resp.CaseStatus, Severity: resp.Severity,
 		AffectedEmployee: resp.AffectedEmployee, CustomerVisibleTime: resp.CustomerVisibleTime,
-		FirstObserved: resp.FirstObserved, ThreatIDs: resp.ThreatIDs, Analysis: resp.Analysis,
+		FirstObserved: resp.FirstObserved, ThreatIDs: boundStrings(resp.ThreatIDs, maxBoundedItems),
+		Analysis:          trimString(resp.Analysis, maxBoundedString),
 		RemediationStatus: resp.RemediationStatus, SeverityLevel: resp.SeverityLevel,
-		Confidence: resp.Confidence, GenAISummary: resp.GenAISummary,
+		Confidence: resp.Confidence, GenAISummary: boundStrings(resp.GenAISummary, maxBoundedItems),
 	}, nil
 }
 
@@ -170,7 +171,9 @@ func (h *handlers) getCaseAnalysis(ctx context.Context, _ *mcp.CallToolRequest, 
 		return nil, caseAnalysisResult{}, abnormal.APIError(err)
 	}
 	return nil, caseAnalysisResult{
-		CaseID: in.ID, Insights: resp.Insights, EventTimeline: resp.EventTimeline,
+		CaseID:        in.ID,
+		Insights:      boundMaps(resp.Insights, maxBoundedItems),
+		EventTimeline: boundMaps(resp.EventTimeline, maxTimelineEvents),
 	}, nil
 }
 
@@ -221,5 +224,6 @@ func (h *handlers) updateCase(ctx context.Context, _ *mcp.CallToolRequest, in ca
 	preview.ActionID = resp.ActionID
 	preview.StatusURL = resp.StatusURL
 	preview.Summary = fmt.Sprintf("Updated case %s (action_id=%s). Poll abnormal_case_action_get for status.", in.ID, resp.ActionID)
+	logResponseAction("abnormal_case_update", "case", in.ID, in.Action)
 	return nil, preview, nil
 }

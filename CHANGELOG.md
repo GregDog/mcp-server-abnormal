@@ -4,6 +4,10 @@ All notable changes to this project are documented in this file.
 
 ## [Unreleased]
 
+### Added
+
+- Phase 6 hardening: HTTP retry/backoff on 429 and 5xx, bounded tool outputs, structured HTTP errors, response action audit logging, and local-only deployment documentation (no RBAC/gateway in scope)
+
 ### Fixed
 
 - Time-window filters on threat and mailbox list tools no longer prefix a duplicate `filter=` in the query value, so `receivedTime` / `lastReportedTime` ranges are applied.

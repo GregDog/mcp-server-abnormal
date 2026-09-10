@@ -87,8 +87,13 @@ func (h *handlers) getEmployeeIdentity(ctx context.Context, _ *mcp.CallToolReque
 		return nil, employeeIdentityResult{}, abnormal.APIError(err)
 	}
 	out := employeeIdentityResult{Email: in.Email}
-	for _, d := range resp.Data {
-		out.Data = append(out.Data, employeeIdentityItem{Key: d.Key, Value: d.Value})
+	for i, d := range resp.Data {
+		if i >= maxGenomeEntries {
+			break
+		}
+		out.Data = append(out.Data, employeeIdentityItem{
+			Key: trimString(d.Key, maxBoundedString), Value: trimString(d.Value, maxBoundedString),
+		})
 	}
 	return nil, out, nil
 }

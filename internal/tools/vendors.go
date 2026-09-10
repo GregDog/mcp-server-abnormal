@@ -116,9 +116,11 @@ func (h *handlers) getVendor(ctx context.Context, _ *mcp.CallToolRequest, in ven
 	}
 	return nil, vendorDetail{
 		VendorDomain: resp.VendorDomain, RiskLevel: resp.RiskLevel,
-		VendorContacts: resp.VendorContacts, CompanyContacts: resp.CompanyContacts,
-		VendorCountries: resp.VendorCountries, Analysis: resp.Analysis,
-		VendorIPAddresses: resp.VendorIPAddresses,
+		VendorContacts:    boundStrings(resp.VendorContacts, maxBoundedStrings),
+		CompanyContacts:   boundStrings(resp.CompanyContacts, maxBoundedStrings),
+		VendorCountries:   boundStrings(resp.VendorCountries, maxBoundedStrings),
+		Analysis:          boundStrings(resp.Analysis, maxBoundedItems),
+		VendorIPAddresses: boundStrings(resp.VendorIPAddresses, maxBoundedStrings),
 	}, nil
 }
 
@@ -131,7 +133,8 @@ func (h *handlers) listVendorActivity(ctx context.Context, _ *mcp.CallToolReques
 		return nil, vendorActivityResult{}, abnormal.APIError(err)
 	}
 	return nil, vendorActivityResult{
-		VendorDomain: in.VendorDomain, EventTimeline: resp.EventTimeline,
+		VendorDomain:  in.VendorDomain,
+		EventTimeline: boundMaps(resp.EventTimeline, maxTimelineEvents),
 	}, nil
 }
 
@@ -170,6 +173,7 @@ func (h *handlers) getVendorCase(ctx context.Context, _ *mcp.CallToolRequest, in
 	return nil, vendorCaseDetail{
 		VendorCaseID: resp.VendorCaseID, VendorDomain: resp.VendorDomain,
 		FirstObservedTime: resp.FirstObservedTime, LastModifiedTime: resp.LastModifiedTime,
-		Insights: resp.Insights, Timeline: resp.Timeline,
+		Insights: boundMaps(resp.Insights, maxBoundedItems),
+		Timeline: boundMaps(resp.Timeline, maxTimelineEvents),
 	}, nil
 }

@@ -8,11 +8,12 @@ import (
 )
 
 const (
-	DefaultBaseURL     = "https://api.abnormalplatform.com/v1"
-	DefaultLogLevel    = "info"
-	DefaultTransport   = "stdio"
-	DefaultHTTPAddr    = "127.0.0.1:8090"
-	DefaultHTTPMaxBody = 32 * 1024 * 1024 // 32 MiB
+	DefaultBaseURL      = "https://api.abnormalplatform.com/v1"
+	DefaultLogLevel     = "info"
+	DefaultTransport    = "stdio"
+	DefaultHTTPAddr     = "127.0.0.1:8090"
+	DefaultHTTPMaxBody  = 32 * 1024 * 1024 // 32 MiB
+	DefaultHTTPMaxRetry = 2
 )
 
 // Config is loaded from the process environment.
@@ -27,6 +28,7 @@ type Config struct {
 	HTTPAddr              string
 	HTTPJSON              bool
 	HTTPMaxBodyBytes      int64
+	HTTPMaxRetries        int
 }
 
 // FromEnv loads configuration. ABNORMAL_API_TOKEN is required.
@@ -44,6 +46,7 @@ func FromEnv() (Config, error) {
 		HTTPAddr:              strings.TrimSpace(os.Getenv("ABNORMAL_MCP_HTTP_ADDR")),
 		HTTPJSON:              parseBoolEnv(os.Getenv("ABNORMAL_MCP_HTTP_JSON")),
 		HTTPMaxBodyBytes:      parseInt64Env(os.Getenv("ABNORMAL_MCP_HTTP_MAX_BODY_BYTES"), DefaultHTTPMaxBody),
+		HTTPMaxRetries:        parseIntEnv(os.Getenv("ABNORMAL_HTTP_MAX_RETRIES"), DefaultHTTPMaxRetry),
 	}
 	if cfg.BaseURL == "" {
 		cfg.BaseURL = DefaultBaseURL
@@ -66,6 +69,18 @@ func FromEnv() (Config, error) {
 		return Config{}, fmt.Errorf("ABNORMAL_MCP_TRANSPORT must be stdio or http")
 	}
 	return cfg, nil
+}
+
+func parseIntEnv(value string, fallback int) int {
+	value = strings.TrimSpace(value)
+	if value == "" {
+		return fallback
+	}
+	n, err := strconv.Atoi(value)
+	if err != nil || n < 0 {
+		return fallback
+	}
+	return n
 }
 
 func parseInt64Env(value string, fallback int64) int64 {
