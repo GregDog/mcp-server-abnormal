@@ -131,7 +131,9 @@ See [docs/security.md](docs/security.md) and [SECURITY.md](SECURITY.md).
 
 ```bash
 make check
-make test-access   # optional live API smoke test
+make test-access    # optional live API smoke test
+make test-phase34   # Phase 3/4 live smoke test
+make test-phase5    # Phase 5 evidence smoke test (requires ABNORMAL_ALLOW_EVIDENCE_DOWNLOAD)
 ```
 
 See [docs/development.md](docs/development.md).

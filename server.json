@@ -2,8 +2,8 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.GregDog/mcp-server-abnormal",
   "title": "Abnormal MCP Server",
-  "description": "MCP server for Abnormal Security: threats, message search, and AI Security Mailbox.",
-  "version": "0.1.0",
+  "description": "MCP server for Abnormal Security: threat investigation, message search, remediation, ATO cases, vendor/BEC analysis, and evidence download.",
+  "version": "1.0.0",
   "repository": {
     "url": "https://github.com/GregDog/mcp-server-abnormal",
     "source": "github"
@@ -12,7 +12,7 @@
   "packages": [
     {
       "registryType": "oci",
-      "identifier": "ghcr.io/gregdog/mcp-server-abnormal:v0.1.0",
+      "identifier": "ghcr.io/gregdog/mcp-server-abnormal:v1.0.0",
       "transport": {
         "type": "stdio"
       },
@@ -36,13 +36,18 @@
         },
         {
           "name": "ABNORMAL_ALLOW_RESPONSE",
-          "description": "Enable response MCP tools",
+          "description": "Enable response MCP tools (remediation)",
           "default": "false"
         },
         {
           "name": "ABNORMAL_ALLOW_EVIDENCE_DOWNLOAD",
-          "description": "Enable evidence download MCP tools",
+          "description": "Enable evidence download MCP tools (EML and attachments)",
           "default": "false"
+        },
+        {
+          "name": "ABNORMAL_MAX_EVIDENCE_BYTES",
+          "description": "Max bytes per evidence download from Abnormal",
+          "default": "10485760"
         }
       ]
     }
