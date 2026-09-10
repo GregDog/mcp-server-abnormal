@@ -37,6 +37,7 @@ type searchMessageItem struct {
 	CloudMessageID    *string  `json:"cloud_message_id,omitempty"`
 	InternetMessageID *string  `json:"internet_message_id,omitempty"`
 	AbnormalMessageID *string  `json:"abnormal_message_id,omitempty"`
+	NativeUserID      *string  `json:"native_user_id,omitempty"`
 	Judgement         *string  `json:"judgement,omitempty"`
 	JudgementSource   *string  `json:"judgement_source,omitempty"`
 	AttachmentNames   []string `json:"attachment_names,omitempty"`
@@ -146,6 +147,7 @@ func (h *handlers) searchMessages(ctx context.Context, _ *mcp.CallToolRequest, i
 			CloudMessageID:    r.CloudMessageID,
 			InternetMessageID: r.InternetMessageID,
 			AbnormalMessageID: r.AbnormalMessageID,
+			NativeUserID:      r.NativeUserID,
 			Judgement:         r.Judgement,
 			JudgementSource:   r.JudgementSource,
 			AttachmentNames:   attachmentNames,

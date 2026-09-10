@@ -178,10 +178,50 @@ func (f *fakeAPI) GetVendorCase(_ context.Context, id string) (abnormal.VendorCa
 	return abnormal.VendorCaseDetails{VendorCaseID: 99, VendorDomain: "vendor.com"}, nil
 }
 
+func (f *fakeAPI) DownloadMessageEML(_ context.Context, messageID int64) (abnormal.BinaryResponse, error) {
+	return abnormal.BinaryResponse{
+		ContentType: "message/rfc822",
+		Data:        []byte("From: sender@example.com\r\nSubject: test\r\n"),
+	}, nil
+}
+
+func (f *fakeAPI) DownloadSearchMessageEML(_ context.Context, cloudMessageID, _, _ string) (abnormal.BinaryResponse, error) {
+	return abnormal.BinaryResponse{
+		ContentType: "message/rfc822",
+		Data:        []byte("From: sender@example.com\r\nSubject: " + cloudMessageID + "\r\n"),
+	}, nil
+}
+
+func (f *fakeAPI) GetMessageAttachmentSignals(_ context.Context, messageID int64, attachmentName string) (abnormal.AttachmentSignals, error) {
+	return abnormal.AttachmentSignals{
+		"message_id":      messageID,
+		"attachment_name": attachmentName,
+		"risk_score":      0.9,
+	}, nil
+}
+
+func (f *fakeAPI) DownloadMessageAttachment(_ context.Context, messageID int64, attachmentName string) (abnormal.BinaryResponse, error) {
+	return abnormal.BinaryResponse{
+		ContentType: "application/pdf",
+		Data:        []byte("%PDF-1.4 fake " + attachmentName),
+	}, nil
+}
+
+func (f *fakeAPI) DownloadSearchAttachment(_ context.Context, params abnormal.SearchAttachmentDownloadParams) (abnormal.BinaryResponse, error) {
+	return abnormal.BinaryResponse{
+		ContentType: "application/pdf",
+		Data:        []byte("%PDF-1.4 " + params.AttachmentName),
+	}, nil
+}
+
 func testHandlers() *handlers {
 	return &handlers{api: &fakeAPI{}}
 }
 
 func testResponseHandlers() *handlers {
 	return &handlers{api: &fakeAPI{}, allowResponse: true}
+}
+
+func testEvidenceHandlers() *handlers {
+	return &handlers{api: &fakeAPI{}, allowEvidenceDownload: true}
 }

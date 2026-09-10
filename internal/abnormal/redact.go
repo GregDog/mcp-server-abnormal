@@ -6,6 +6,7 @@ import (
 
 var authHeaderPattern = regexp.MustCompile(`(?i)(authorization\s*[:=]\s*)(\S+)`)
 var bearerPattern = regexp.MustCompile(`(?i)\bBearer\s+\S+`)
+var contentBase64Pattern = regexp.MustCompile(`(?i)"content_base64"\s*:\s*"[^"]*"`)
 
 // Redact removes bearer tokens and Authorization headers from a string.
 func Redact(s string) string {
@@ -19,7 +20,8 @@ func Redact(s string) string {
 
 // RedactLogMessage redacts sensitive values from log text.
 func RedactLogMessage(s string) string {
-	return Redact(s)
+	s = Redact(s)
+	return contentBase64Pattern.ReplaceAllString(s, `"content_base64":"[redacted]"`)
 }
 
 // RedactError returns err with token values removed from the message.

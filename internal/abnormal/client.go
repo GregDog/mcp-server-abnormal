@@ -46,6 +46,11 @@ type API interface {
 	GetVendorActivity(ctx context.Context, vendorDomain string) (VendorActivity, error)
 	ListVendorCases(ctx context.Context, params ListVendorCasesParams) (PaginatedVendorCases, error)
 	GetVendorCase(ctx context.Context, caseID string) (VendorCaseDetails, error)
+	DownloadMessageEML(ctx context.Context, messageID int64) (BinaryResponse, error)
+	DownloadSearchMessageEML(ctx context.Context, cloudMessageID, quarantineIdentity, recipientMailbox string) (BinaryResponse, error)
+	GetMessageAttachmentSignals(ctx context.Context, messageID int64, attachmentName string) (AttachmentSignals, error)
+	DownloadMessageAttachment(ctx context.Context, messageID int64, attachmentName string) (BinaryResponse, error)
+	DownloadSearchAttachment(ctx context.Context, params SearchAttachmentDownloadParams) (BinaryResponse, error)
 }
 
 // ListThreatsParams are query parameters for GET /threats.
@@ -320,11 +325,16 @@ func New(cfg config.Config) (API, error) {
 	if maxRetries < 0 {
 		maxRetries = 0
 	}
+	maxEvidence := cfg.MaxEvidenceBytes
+	if maxEvidence <= 0 {
+		maxEvidence = defaultMaxEvidenceBytes
+	}
 	return &client{
-		baseURL:    baseURL,
-		token:      cfg.APIToken,
-		mockData:   cfg.MockData,
-		maxRetries: maxRetries,
+		baseURL:          baseURL,
+		token:            cfg.APIToken,
+		mockData:         cfg.MockData,
+		maxRetries:       maxRetries,
+		maxEvidenceBytes: maxEvidence,
 		http: &http.Client{
 			Timeout: httpTimeout,
 		},
@@ -332,11 +342,12 @@ func New(cfg config.Config) (API, error) {
 }
 
 type client struct {
-	baseURL    string
-	token      string
-	mockData   bool
-	maxRetries int
-	http       *http.Client
+	baseURL          string
+	token            string
+	mockData         bool
+	maxRetries       int
+	maxEvidenceBytes int64
+	http             *http.Client
 }
 
 func (c *client) ListThreats(ctx context.Context, params ListThreatsParams) (PaginatedThreats, error) {

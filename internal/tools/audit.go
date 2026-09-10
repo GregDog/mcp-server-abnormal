@@ -10,3 +10,11 @@ func logResponseAction(tool, resourceType, resourceID, action string) {
 		"action", action,
 	)
 }
+
+func logEvidenceAccess(tool, resourceID string, sizeBytes int) {
+	slog.Info("abnormal evidence accessed",
+		"tool", tool,
+		"resource_id", resourceID,
+		"size_bytes", sizeBytes,
+	)
+}

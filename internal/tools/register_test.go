@@ -108,3 +108,71 @@ func TestRegisterResponseTools(t *testing.T) {
 		}
 	}
 }
+
+func TestRegisterEvidenceTools(t *testing.T) {
+	server := mcp.NewServer(&mcp.Implementation{Name: "test", Version: "1"}, nil)
+	Register(server, &fakeAPI{}, Options{AllowEvidenceDownload: true})
+
+	t1, t2 := mcp.NewInMemoryTransports()
+	ctx := context.Background()
+	ss, err := server.Connect(ctx, t1, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer ss.Close()
+	cs, err := mcp.NewClient(&mcp.Implementation{Name: "client", Version: "1"}, nil).Connect(ctx, t2, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer cs.Close()
+
+	tools, err := cs.ListTools(ctx, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(tools.Tools) != 29 {
+		t.Fatalf("tools: %d", len(tools.Tools))
+	}
+
+	var names []string
+	for _, tool := range tools.Tools {
+		names = append(names, tool.Name)
+	}
+	for _, name := range []string{
+		"abnormal_message_eml_get",
+		"abnormal_search_message_eml_get",
+		"abnormal_message_attachment_get",
+		"abnormal_message_attachment_download",
+		"abnormal_search_attachment_download",
+	} {
+		if !slices.Contains(names, name) {
+			t.Fatalf("missing evidence tool %s in %v", name, names)
+		}
+	}
+}
+
+func TestRegisterEvidenceAndResponseTools(t *testing.T) {
+	server := mcp.NewServer(&mcp.Implementation{Name: "test", Version: "1"}, nil)
+	Register(server, &fakeAPI{}, Options{AllowEvidenceDownload: true, AllowResponse: true})
+
+	t1, t2 := mcp.NewInMemoryTransports()
+	ctx := context.Background()
+	ss, err := server.Connect(ctx, t1, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer ss.Close()
+	cs, err := mcp.NewClient(&mcp.Implementation{Name: "client", Version: "1"}, nil).Connect(ctx, t2, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer cs.Close()
+
+	tools, err := cs.ListTools(ctx, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(tools.Tools) != 32 {
+		t.Fatalf("tools: %d", len(tools.Tools))
+	}
+}

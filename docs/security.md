@@ -54,6 +54,10 @@ The Streamable HTTP transport (`ABNORMAL_MCP_TRANSPORT=http`) is for **local dev
 
 Confirmed response tool executions (`confirm: true`) emit structured `slog` info lines with tool name, resource type/id, and action. Tokens and message bodies are never logged.
 
+## Evidence access audit log
+
+Evidence download tool calls emit structured `slog` info lines with tool name, resource identifier, and payload size. Raw file contents and `content_base64` values are never logged (`content_base64` fields in log text are redacted).
+
 ## Reporting vulnerabilities
 
 See [SECURITY.md](../SECURITY.md). Enable GitHub private vulnerability reporting and secret scanning on the repository.

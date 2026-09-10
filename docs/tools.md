@@ -215,3 +215,60 @@ Update ATO case status. Returns `action_id` — poll with `abnormal_case_action_
 | `confirm` | Must be `true` to execute |
 | `id` | Case ID |
 | `action` | `action_required`, `acknowledge_resolved`, `acknowledge_in_progress`, or `acknowledge_not_an_attack` |
+
+## Evidence download (opt-in)
+
+Enable with `ABNORMAL_ALLOW_EVIDENCE_DOWNLOAD=true` or `--allow-evidence-download`. These tools return metadata (content type, size, SHA256) and optional bounded preview or base64 — not raw binary by default.
+
+| Tool | Description |
+| --- | --- |
+| `abnormal_message_eml_get` | Download EML by ABX `message_id` |
+| `abnormal_search_message_eml_get` | Download EML by `cloud_message_id` from search |
+| `abnormal_message_attachment_get` | Attachment analysis signals (JSON) |
+| `abnormal_message_attachment_download` | Download attachment by ABX `message_id` and `attachment_name` |
+| `abnormal_search_attachment_download` | Download attachment using search result identifiers |
+
+Shared optional parameters on download tools:
+
+| Parameter | Default | Description |
+| --- | --- | --- |
+| `include_preview` | `true` | Bounded text preview (4 KiB) for text-like content types |
+| `include_content_base64` | `false` | Embed base64 when payload is under 1 MiB |
+
+### `abnormal_message_eml_get`
+
+| Parameter | Description |
+| --- | --- |
+| `message_id` | ABX message ID from threat or search results (`abnormal_message_id`) |
+
+### `abnormal_search_message_eml_get`
+
+| Parameter | Description |
+| --- | --- |
+| `cloud_message_id` | From `abnormal_search_messages` results |
+| `quarantine_identity` | Required for quarantine source messages |
+| `recipient_mailbox` | Required for quarantine source messages |
+
+### `abnormal_message_attachment_get`
+
+| Parameter | Description |
+| --- | --- |
+| `message_id` | ABX message ID |
+| `attachment_name` | Attachment file name |
+
+### `abnormal_message_attachment_download`
+
+Same parameters as `abnormal_message_attachment_get`, plus optional `include_preview` and `include_content_base64`.
+
+### `abnormal_search_attachment_download`
+
+| Parameter | Description |
+| --- | --- |
+| `message_id` | Numeric message ID (parse from `abnormal_message_id` in search results) |
+| `attachment_name` | Attachment file name |
+| `tenant_id` | From search results |
+| `raw_message_id` | From search results |
+| `native_user_id` | From search results |
+| `recipient_mailbox` | Recipient mailbox email (`mailbox_name` in search results) |
+
+Outbound download size is capped by `ABNORMAL_MAX_EVIDENCE_BYTES` (default 10 MiB).

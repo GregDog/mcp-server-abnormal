@@ -6,6 +6,7 @@ All notable changes to this project are documented in this file.
 
 ### Added
 
+- Phase 5 evidence download tools (gated by `ABNORMAL_ALLOW_EVIDENCE_DOWNLOAD`): EML and attachment download with metadata, bounded preview, and optional base64 embed; attachment analysis signals; evidence access audit logging
 - Phase 6 hardening: HTTP retry/backoff on 429 and 5xx, bounded tool outputs, structured HTTP errors, response action audit logging, and local-only deployment documentation (no RBAC/gateway in scope)
 
 ### Fixed

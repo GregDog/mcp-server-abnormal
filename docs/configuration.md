@@ -10,6 +10,7 @@ Configuration is environment-based.
 | `ABNORMAL_MCP_LOG_LEVEL` | no | `info` | `debug`, `info`, `warn`, or `error` |
 | `ABNORMAL_ALLOW_RESPONSE` | no | `false` | Enable response MCP tools when `true`, `1`, `yes`, or `on` |
 | `ABNORMAL_ALLOW_EVIDENCE_DOWNLOAD` | no | `false` | Enable evidence download MCP tools when `true`, `1`, `yes`, or `on` |
+| `ABNORMAL_MAX_EVIDENCE_BYTES` | no | `10485760` | Max bytes read per evidence download from Abnormal (10 MiB) |
 | `ABNORMAL_HTTP_MAX_RETRIES` | no | `2` | Retries after HTTP 429/502/503/504 (0 disables) |
 | `ABNORMAL_MCP_TRANSPORT` | no | `stdio` | `stdio` or `http` |
 | `ABNORMAL_MCP_HTTP_ADDR` | no | `127.0.0.1:8090` | Loopback listen address when `ABNORMAL_MCP_TRANSPORT=http` |

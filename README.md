@@ -41,6 +41,13 @@ The server is read-only by default. Response and evidence download tools are opt
 - Search remediation (`delete`, `move_to_inbox`) with `confirm: true` preview gate
 - Threat remediate / unremediate with `confirm: true` preview gate
 - ATO case status update with `confirm: true` preview gate
+
+**Evidence download (opt-in: `ABNORMAL_ALLOW_EVIDENCE_DOWNLOAD=true`)**
+
+- Message EML download (by ABX message ID or search `cloud_message_id`)
+- Attachment analysis signals and attachment download
+- Metadata + bounded preview by default; optional base64 embed (max 1 MiB in tool output)
+
 - stdio transport (default) and opt-in Streamable HTTP
 - Native Go binary and Docker image
 - MCP Registry listing on tagged releases (`io.github.GregDog/mcp-server-abnormal`)
@@ -84,7 +91,7 @@ See [examples/claude-desktop.json](examples/claude-desktop.json).
 
 ## Tools
 
-**24 read tools** are always registered. With `ABNORMAL_ALLOW_RESPONSE=true`, three additional response tools are available (27 total).
+**24 read tools** are always registered. With `ABNORMAL_ALLOW_EVIDENCE_DOWNLOAD=true`, five evidence tools are added (29 total). With `ABNORMAL_ALLOW_RESPONSE=true`, three response tools are added (27 total, or 32 with both gates enabled).
 
 | Area | Tools |
 | --- | --- |
@@ -95,6 +102,7 @@ See [examples/claude-desktop.json](examples/claude-desktop.json).
 | Employees | `abnormal_employee_get`, `abnormal_employee_identity_get`, `abnormal_employee_logins_list` |
 | ATO cases | `abnormal_cases_list`, `abnormal_case_get`, `abnormal_case_analysis_get`, `abnormal_case_action_get` |
 | Vendors | `abnormal_vendors_list`, `abnormal_vendor_get`, `abnormal_vendor_activity_list`, `abnormal_vendor_cases_list`, `abnormal_vendor_case_get` |
+| Evidence (opt-in) | `abnormal_message_eml_get`, `abnormal_search_message_eml_get`, `abnormal_message_attachment_get`, `abnormal_message_attachment_download`, `abnormal_search_attachment_download` |
 | Response (opt-in) | `abnormal_search_remediate`, `abnormal_threat_remediate`, `abnormal_case_update` |
 
 See [docs/tools.md](docs/tools.md) for parameters.

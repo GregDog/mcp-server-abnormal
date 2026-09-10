@@ -8,7 +8,11 @@ import (
 
 // Register adds Abnormal MCP tools to the server.
 func Register(server *mcp.Server, api abnormal.API, opts Options) {
-	h := &handlers{api: api, allowResponse: opts.AllowResponse}
+	h := &handlers{
+		api:                   api,
+		allowResponse:         opts.AllowResponse,
+		allowEvidenceDownload: opts.AllowEvidenceDownload,
+	}
 	registerThreats(server, h)
 	registerSearch(server, h)
 	registerMessages(server, h)
@@ -16,6 +20,9 @@ func Register(server *mcp.Server, api abnormal.API, opts Options) {
 	registerEmployees(server, h)
 	registerCases(server, h)
 	registerVendors(server, h)
+	if opts.AllowEvidenceDownload {
+		registerEvidence(server, h)
+	}
 	if opts.AllowResponse {
 		registerResponse(server, h)
 		registerCaseResponse(server, h)
@@ -23,6 +30,7 @@ func Register(server *mcp.Server, api abnormal.API, opts Options) {
 }
 
 type handlers struct {
-	api           abnormal.API
-	allowResponse bool
+	api                   abnormal.API
+	allowResponse         bool
+	allowEvidenceDownload bool
 }
