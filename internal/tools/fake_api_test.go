@@ -58,7 +58,7 @@ func (f *fakeAPI) GetSearchActivityStatus(_ context.Context, id int) (abnormal.A
 func (f *fakeAPI) GetRemediationHistory(_ context.Context, messageID int64) (abnormal.RemediationHistory, error) {
 	return abnormal.RemediationHistory{
 		RemediationHistory: map[string]string{"Auto-Remediated": "2024-01-01T00:00:00Z"},
-		FolderLocations:    []string{"Junk"},
+		FolderLocations:    []abnormal.FolderLocation{{Name: "junk", DisplayName: "Junk"}},
 	}, nil
 }
 

@@ -196,9 +196,14 @@ type RemediationDetail struct {
 	ErrorMessage string `json:"error_message"`
 }
 
+type FolderLocation struct {
+	Name        string `json:"name"`
+	DisplayName string `json:"display_name"`
+}
+
 type RemediationHistory struct {
 	RemediationHistory map[string]string `json:"remediation_history"`
-	FolderLocations    []string          `json:"folder_locations"`
+	FolderLocations    []FolderLocation  `json:"folder_locations"`
 }
 
 type AbuseCampaignRef struct {

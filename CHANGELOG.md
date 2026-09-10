@@ -7,6 +7,7 @@ All notable changes to this project are documented in this file.
 ### Fixed
 
 - Time-window filters on threat and mailbox list tools no longer prefix a duplicate `filter=` in the query value, so `receivedTime` / `lastReportedTime` ranges are applied.
+- `abnormal_message_remediation_history` decodes `folder_locations` as `{name, display_name}` objects per the live API response.
 
 ### Added
 

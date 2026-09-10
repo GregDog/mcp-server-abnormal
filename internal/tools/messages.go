@@ -12,9 +12,14 @@ type messageRemediationHistoryInput struct {
 	MessageID int64 `json:"message_id" jsonschema:"ABX message ID from threat or search results."`
 }
 
+type folderLocationItem struct {
+	Name        string `json:"name"`
+	DisplayName string `json:"display_name"`
+}
+
 type messageRemediationHistory struct {
-	RemediationHistory map[string]string `json:"remediation_history"`
-	FolderLocations    []string          `json:"folder_locations"`
+	RemediationHistory map[string]string    `json:"remediation_history"`
+	FolderLocations    []folderLocationItem `json:"folder_locations"`
 }
 
 func registerMessages(server *mcp.Server, h *handlers) {
@@ -34,8 +39,15 @@ func (h *handlers) getMessageRemediationHistory(ctx context.Context, _ *mcp.Call
 	if err != nil {
 		return nil, messageRemediationHistory{}, abnormal.APIError(err)
 	}
+	folders := make([]folderLocationItem, 0, len(resp.FolderLocations))
+	for _, f := range resp.FolderLocations {
+		folders = append(folders, folderLocationItem{
+			Name:        f.Name,
+			DisplayName: f.DisplayName,
+		})
+	}
 	return nil, messageRemediationHistory{
 		RemediationHistory: resp.RemediationHistory,
-		FolderLocations:    resp.FolderLocations,
+		FolderLocations:    folders,
 	}, nil
 }
