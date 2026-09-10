@@ -31,6 +31,21 @@ type API interface {
 	RemediateSearch(ctx context.Context, req RemediationRequest) (RemediationResponse, error)
 	RemediateThreat(ctx context.Context, threatID string, action string) (PostThreatResponse, error)
 	GetThreatActionStatus(ctx context.Context, threatID, actionID string) (ThreatActionStatus, error)
+	GetThreatLinks(ctx context.Context, threatID string) (ThreatLinksResponse, error)
+	GetThreatAttachments(ctx context.Context, threatID string) (ThreatAttachmentsResponse, error)
+	GetEmployee(ctx context.Context, email string) (EmployeeDetails, error)
+	GetEmployeeIdentity(ctx context.Context, email string) (EmployeeIdentityDetails, error)
+	GetEmployeeLogins(ctx context.Context, email string, maxRows int) ([]EmployeeLoginRow, error)
+	ListCases(ctx context.Context, params ListCasesParams) (PaginatedCases, error)
+	GetCase(ctx context.Context, caseID string) (AbnormalCaseDetails, error)
+	GetCaseAnalysis(ctx context.Context, caseID string) (CaseAnalysis, error)
+	GetCaseActionStatus(ctx context.Context, caseID, actionID string) (CaseActionStatus, error)
+	UpdateCase(ctx context.Context, caseID, action string) (PostCaseResponse, error)
+	ListVendors(ctx context.Context, params ListVendorsParams) (PaginatedVendors, error)
+	GetVendorDetails(ctx context.Context, vendorDomain string) (VendorDetail, error)
+	GetVendorActivity(ctx context.Context, vendorDomain string) (VendorActivity, error)
+	ListVendorCases(ctx context.Context, params ListVendorCasesParams) (PaginatedVendorCases, error)
+	GetVendorCase(ctx context.Context, caseID string) (VendorCaseDetails, error)
 }
 
 // ListThreatsParams are query parameters for GET /threats.
@@ -476,6 +491,47 @@ func (c *client) GetThreatActionStatus(ctx context.Context, threatID, actionID s
 	path := "/threats/" + url.PathEscape(threatID) + "/actions/" + url.PathEscape(actionID)
 	err := c.doJSON(ctx, http.MethodGet, path, nil, nil, &out)
 	return out, err
+}
+
+func (c *client) doText(ctx context.Context, method, path string, query url.Values, accept string) (string, error) {
+	u, err := url.Parse(c.baseURL + path)
+	if err != nil {
+		return "", fmt.Errorf("parse url: %w", RedactError(err))
+	}
+	if len(query) > 0 {
+		u.RawQuery = query.Encode()
+	}
+	req, err := http.NewRequestWithContext(ctx, method, u.String(), nil)
+	if err != nil {
+		return "", fmt.Errorf("create request: %w", err)
+	}
+	req.Header.Set("Authorization", "Bearer "+c.token)
+	if accept != "" {
+		req.Header.Set("Accept", accept)
+	}
+	if c.mockData {
+		req.Header.Set("Mock-Data", "True")
+	}
+	resp, err := c.http.Do(req)
+	if err != nil {
+		return "", RedactError(err)
+	}
+	defer resp.Body.Close()
+	data, err := io.ReadAll(io.LimitReader(resp.Body, 4*1024*1024))
+	if err != nil {
+		return "", fmt.Errorf("read response: %w", err)
+	}
+	if resp.StatusCode == http.StatusTooManyRequests {
+		return "", fmt.Errorf("rate limited (HTTP 429)")
+	}
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		msg := strings.TrimSpace(string(data))
+		if msg == "" {
+			msg = resp.Status
+		}
+		return "", fmt.Errorf("HTTP %d: %s", resp.StatusCode, Redact(msg))
+	}
+	return string(data), nil
 }
 
 func (c *client) doJSON(ctx context.Context, method, path string, query url.Values, body any, out any) error {

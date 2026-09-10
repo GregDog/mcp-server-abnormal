@@ -39,8 +39,11 @@ Documented in [tools.md](tools.md):
 - `GET /threats` pagination only works when a `filter` query parameter is set; without it the API returns only the top 100 threat IDs.
 - `GET /threats/{id}` message paging is currently limited (about 10 messages per threat).
 - Message search (`POST /search`) is synchronous; activity status endpoints track remediation operations.
-- There is no `GET /messages/{id}` for full message bodies in Phase 1.
+- There is no `GET /messages/{id}` for full message bodies; use search/threat payloads or Phase 5 evidence download.
 - `sender_domain` in `abnormal_search_messages` is implemented via `sender_email` regex because the API has no native domain filter.
+- ATO case endpoints require an Account Takeover license on the tenant.
+- `GET /employee/{email}/logins` returns CSV from the API; this server parses and bounds rows (max 50).
+- Vendor and case list pagination follows the same `filter` + `pageSize` / `pageNumber` pattern as threats.
 
 Official API reference: [Abnormal Security Client API v1.4.3](https://app.swaggerhub.com/apis-docs/abnormal-security/abx/1.4.3).
 

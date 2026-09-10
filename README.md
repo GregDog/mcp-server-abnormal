@@ -25,17 +25,22 @@ The server is read-only by default. Response and evidence download tools are opt
 **Read (always on)**
 
 - Threat list and get from the Threat Log
+- Threat links and attachment metadata
 - Threat action status poll (`abnormal_threat_action_get`)
 - Message search with ergonomic filters (`since`, `sender`, `sender_domain`, `recipient`, `subject`, `url`, `attachment`, `sender_ip`, `judgement`)
 - Search activity list and status
 - Message remediation history
 - AI Security Mailbox (formerly Abuse Mailbox) campaigns and unanalyzed reports
+- Employee profile, identity (Genome), and recent logins
+- ATO case list, detail, and analysis
+- Vendor list, detail, activity, and vendor compromise cases
+- US, EU, and FedRAMP base URLs (configurable)
 
 **Response (opt-in: `ABNORMAL_ALLOW_RESPONSE=true`)**
 
 - Search remediation (`delete`, `move_to_inbox`) with `confirm: true` preview gate
 - Threat remediate / unremediate with `confirm: true` preview gate
-- US, EU, and FedRAMP base URLs (configurable)
+- ATO case status update with `confirm: true` preview gate
 - stdio transport (default) and opt-in Streamable HTTP
 - Native Go binary and Docker image
 - MCP Registry listing on tagged releases (`io.github.GregDog/mcp-server-abnormal`)
@@ -79,17 +84,18 @@ See [examples/claude-desktop.json](examples/claude-desktop.json).
 
 ## Tools
 
-| Tool | Description |
+**24 read tools** are always registered. With `ABNORMAL_ALLOW_RESPONSE=true`, three additional response tools are available (27 total).
+
+| Area | Tools |
 | --- | --- |
-| `abnormal_threats_list` | List threat campaigns (paginated) |
-| `abnormal_threat_get` | Get threat details and messages |
-| `abnormal_search_messages` | Search messages with ergonomic filters |
-| `abnormal_search_activities_list` | List search/remediation activities |
-| `abnormal_search_activity_get` | Get activity status and remediation details |
-| `abnormal_message_remediation_history` | Remediation history for a message |
-| `abnormal_mailbox_campaigns_list` | List AI Security Mailbox campaigns |
-| `abnormal_mailbox_campaign_get` | Get campaign details |
-| `abnormal_mailbox_unanalyzed_list` | List unanalyzed mailbox submissions |
+| Threats | `abnormal_threats_list`, `abnormal_threat_get`, `abnormal_threat_action_get`, `abnormal_threat_links_list`, `abnormal_threat_attachments_list` |
+| Search | `abnormal_search_messages`, `abnormal_search_activities_list`, `abnormal_search_activity_get` |
+| Messages | `abnormal_message_remediation_history` |
+| Mailbox | `abnormal_mailbox_campaigns_list`, `abnormal_mailbox_campaign_get`, `abnormal_mailbox_unanalyzed_list` |
+| Employees | `abnormal_employee_get`, `abnormal_employee_identity_get`, `abnormal_employee_logins_list` |
+| ATO cases | `abnormal_cases_list`, `abnormal_case_get`, `abnormal_case_analysis_get`, `abnormal_case_action_get` |
+| Vendors | `abnormal_vendors_list`, `abnormal_vendor_get`, `abnormal_vendor_activity_list`, `abnormal_vendor_cases_list`, `abnormal_vendor_case_get` |
+| Response (opt-in) | `abnormal_search_remediate`, `abnormal_threat_remediate`, `abnormal_case_update` |
 
 See [docs/tools.md](docs/tools.md) for parameters.
 

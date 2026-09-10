@@ -13,8 +13,12 @@ func Register(server *mcp.Server, api abnormal.API, opts Options) {
 	registerSearch(server, h)
 	registerMessages(server, h)
 	registerMailbox(server, h)
+	registerEmployees(server, h)
+	registerCases(server, h)
+	registerVendors(server, h)
 	if opts.AllowResponse {
 		registerResponse(server, h)
+		registerCaseResponse(server, h)
 	}
 }
 

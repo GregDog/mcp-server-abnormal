@@ -11,6 +11,8 @@ All notable changes to this project are documented in this file.
 
 ### Added
 
+- Phase 3: threat links/attachments, employee profile/identity/logins, ATO case list/detail/analysis/action status, and gated `abnormal_case_update`
+- Phase 4: vendor list/detail/activity and vendor case list/detail
 - Phase 2: `abnormal_search_remediate`, `abnormal_threat_remediate` (gated by `ABNORMAL_ALLOW_RESPONSE`), and `abnormal_threat_action_get` (read-only status poll)
 - Phase 1: threat list/get, message search, search activities, remediation history, AI Security Mailbox campaigns and unanalyzed reports
 - stdio and Streamable HTTP transports

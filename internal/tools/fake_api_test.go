@@ -98,6 +98,86 @@ func (f *fakeAPI) GetThreatActionStatus(_ context.Context, _, _ string) (abnorma
 	return abnormal.ThreatActionStatus{Status: "completed", Description: "done"}, nil
 }
 
+func (f *fakeAPI) GetThreatLinks(_ context.Context, id string) (abnormal.ThreatLinksResponse, error) {
+	return abnormal.ThreatLinksResponse{
+		Links: []abnormal.ThreatLink{{AbxMessageID: 1, LinkURL: "http://evil.example", DomainLink: "evil.example"}},
+	}, nil
+}
+
+func (f *fakeAPI) GetThreatAttachments(_ context.Context, id string) (abnormal.ThreatAttachmentsResponse, error) {
+	return abnormal.ThreatAttachmentsResponse{
+		Attachments: []abnormal.ThreatAttachment{{AbxMessageID: 1, AttachmentName: "invoice.pdf"}},
+	}, nil
+}
+
+func (f *fakeAPI) GetEmployee(_ context.Context, email string) (abnormal.EmployeeDetails, error) {
+	return abnormal.EmployeeDetails{Name: "Alice", Email: email, Title: "Analyst", Manager: "boss@example.com"}, nil
+}
+
+func (f *fakeAPI) GetEmployeeIdentity(_ context.Context, email string) (abnormal.EmployeeIdentityDetails, error) {
+	return abnormal.EmployeeIdentityDetails{
+		Data: []abnormal.EmployeeGenomeDetail{{Key: "ip_address", Value: "1.2.3.4"}},
+	}, nil
+}
+
+func (f *fakeAPI) GetEmployeeLogins(_ context.Context, email string, _ int) ([]abnormal.EmployeeLoginRow, error) {
+	return []abnormal.EmployeeLoginRow{{UserPrincipalName: email, Status: "Success"}}, nil
+}
+
+func (f *fakeAPI) ListCases(_ context.Context, _ abnormal.ListCasesParams) (abnormal.PaginatedCases, error) {
+	return abnormal.PaginatedCases{
+		Cases:      []abnormal.AbnormalCaseRef{{CaseID: "case-1", Description: "ATO"}},
+		PageNumber: 1,
+	}, nil
+}
+
+func (f *fakeAPI) GetCase(_ context.Context, id string) (abnormal.AbnormalCaseDetails, error) {
+	return abnormal.AbnormalCaseDetails{CaseID: id, Severity: "High"}, nil
+}
+
+func (f *fakeAPI) GetCaseAnalysis(_ context.Context, id string) (abnormal.CaseAnalysis, error) {
+	return abnormal.CaseAnalysis{
+		Insights:      []map[string]any{{"type": "login"}},
+		EventTimeline: []map[string]any{{"event": "sign-in"}},
+	}, nil
+}
+
+func (f *fakeAPI) GetCaseActionStatus(_ context.Context, _, _ string) (abnormal.CaseActionStatus, error) {
+	return abnormal.CaseActionStatus{Status: "completed", Description: "done"}, nil
+}
+
+func (f *fakeAPI) UpdateCase(_ context.Context, id, action string) (abnormal.PostCaseResponse, error) {
+	return abnormal.PostCaseResponse{ActionID: "act-1", StatusURL: "/cases/" + id + "/actions/act-1"}, nil
+}
+
+func (f *fakeAPI) ListVendors(_ context.Context, _ abnormal.ListVendorsParams) (abnormal.PaginatedVendors, error) {
+	return abnormal.PaginatedVendors{
+		Vendors:    []abnormal.VendorRef{{VendorDomain: "vendor.com"}},
+		PageNumber: 1,
+	}, nil
+}
+
+func (f *fakeAPI) GetVendorDetails(_ context.Context, domain string) (abnormal.VendorDetail, error) {
+	return abnormal.VendorDetail{VendorDomain: domain, RiskLevel: "High"}, nil
+}
+
+func (f *fakeAPI) GetVendorActivity(_ context.Context, domain string) (abnormal.VendorActivity, error) {
+	return abnormal.VendorActivity{
+		EventTimeline: []map[string]any{{"vendor": domain}},
+	}, nil
+}
+
+func (f *fakeAPI) ListVendorCases(_ context.Context, _ abnormal.ListVendorCasesParams) (abnormal.PaginatedVendorCases, error) {
+	return abnormal.PaginatedVendorCases{
+		VendorCases: []abnormal.VendorCaseRef{{VendorCaseID: 99}},
+		PageNumber:  1,
+	}, nil
+}
+
+func (f *fakeAPI) GetVendorCase(_ context.Context, id string) (abnormal.VendorCaseDetails, error) {
+	return abnormal.VendorCaseDetails{VendorCaseID: 99, VendorDomain: "vendor.com"}, nil
+}
+
 func testHandlers() *handlers {
 	return &handlers{api: &fakeAPI{}}
 }

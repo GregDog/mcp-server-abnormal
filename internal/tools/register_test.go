@@ -29,7 +29,7 @@ func TestRegisterAllTools(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(tools.Tools) != 10 {
+	if len(tools.Tools) != 24 {
 		t.Fatalf("tools: %d", len(tools.Tools))
 	}
 
@@ -37,6 +37,8 @@ func TestRegisterAllTools(t *testing.T) {
 		"abnormal_threats_list",
 		"abnormal_threat_get",
 		"abnormal_threat_action_get",
+		"abnormal_threat_links_list",
+		"abnormal_threat_attachments_list",
 		"abnormal_search_messages",
 		"abnormal_search_activities_list",
 		"abnormal_search_activity_get",
@@ -44,6 +46,18 @@ func TestRegisterAllTools(t *testing.T) {
 		"abnormal_mailbox_campaigns_list",
 		"abnormal_mailbox_campaign_get",
 		"abnormal_mailbox_unanalyzed_list",
+		"abnormal_employee_get",
+		"abnormal_employee_identity_get",
+		"abnormal_employee_logins_list",
+		"abnormal_cases_list",
+		"abnormal_case_get",
+		"abnormal_case_analysis_get",
+		"abnormal_case_action_get",
+		"abnormal_vendors_list",
+		"abnormal_vendor_get",
+		"abnormal_vendor_activity_list",
+		"abnormal_vendor_cases_list",
+		"abnormal_vendor_case_get",
 	}
 	var names []string
 	for _, tool := range tools.Tools {
@@ -80,7 +94,7 @@ func TestRegisterResponseTools(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(tools.Tools) != 12 {
+	if len(tools.Tools) != 27 {
 		t.Fatalf("tools: %d", len(tools.Tools))
 	}
 
@@ -88,7 +102,7 @@ func TestRegisterResponseTools(t *testing.T) {
 	for _, tool := range tools.Tools {
 		names = append(names, tool.Name)
 	}
-	for _, name := range []string{"abnormal_search_remediate", "abnormal_threat_remediate"} {
+	for _, name := range []string{"abnormal_search_remediate", "abnormal_threat_remediate", "abnormal_case_update"} {
 		if !slices.Contains(names, name) {
 			t.Fatalf("missing response tool %s in %v", name, names)
 		}

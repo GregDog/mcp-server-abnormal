@@ -55,6 +55,40 @@ type threatActionGetInput struct {
 	ActionID string `json:"action_id" jsonschema:"Action ID returned from abnormal_threat_remediate."`
 }
 
+type threatLinksInput struct {
+	ThreatID string `json:"threat_id" jsonschema:"Threat ID (UUID)."`
+}
+
+type threatLinkItem struct {
+	AbxMessageID    int64  `json:"abx_message_id"`
+	AbxMessageIDStr string `json:"abx_message_id_str,omitempty"`
+	DomainLink      string `json:"domain_link,omitempty"`
+	LinkType        string `json:"link_type,omitempty"`
+	Source          string `json:"source,omitempty"`
+	DisplayText     string `json:"display_text,omitempty"`
+	LinkURL         string `json:"link_url,omitempty"`
+}
+
+type threatLinksResult struct {
+	ThreatID   string           `json:"threat_id"`
+	Links      []threatLinkItem `json:"links"`
+	TenantID   *int             `json:"tenant_id,omitempty"`
+	TenantName string           `json:"tenant_name,omitempty"`
+}
+
+type threatAttachmentItem struct {
+	AbxMessageID    int64  `json:"abx_message_id"`
+	AbxMessageIDStr string `json:"abx_message_id_str,omitempty"`
+	AttachmentName  string `json:"attachment_name,omitempty"`
+}
+
+type threatAttachmentsResult struct {
+	ThreatID    string                 `json:"threat_id"`
+	Attachments []threatAttachmentItem `json:"attachments"`
+	TenantID    *int                   `json:"tenant_id,omitempty"`
+	TenantName  string                 `json:"tenant_name,omitempty"`
+}
+
 type threatActionStatus struct {
 	ThreatID    string `json:"threat_id"`
 	ActionID    string `json:"action_id"`
@@ -85,6 +119,20 @@ func registerThreats(server *mcp.Server, h *handlers) {
 		Description: "Poll the status of a threat remediate or unremediate action returned by abnormal_threat_remediate.",
 		Annotations: readOnly(),
 	}, h.getThreatAction)
+
+	addTool(server, &mcp.Tool{
+		Name:        "abnormal_threat_links_list",
+		Title:       "List links in an Abnormal threat",
+		Description: "Get URLs and link metadata embedded in email messages of a threat campaign.",
+		Annotations: readOnly(),
+	}, h.listThreatLinks)
+
+	addTool(server, &mcp.Tool{
+		Name:        "abnormal_threat_attachments_list",
+		Title:       "List attachments in an Abnormal threat",
+		Description: "Get attachment metadata for email messages in a threat campaign.",
+		Annotations: readOnly(),
+	}, h.listThreatAttachments)
 }
 
 func (h *handlers) listThreats(ctx context.Context, _ *mcp.CallToolRequest, in threatListInput) (*mcp.CallToolResult, abnormal.Page[threatItem], error) {
@@ -151,6 +199,49 @@ func (h *handlers) getThreatAction(ctx context.Context, _ *mcp.CallToolRequest, 
 	}
 	if resp.TenantName != nil {
 		out.TenantName = *resp.TenantName
+	}
+	return nil, out, nil
+}
+
+func (h *handlers) listThreatLinks(ctx context.Context, _ *mcp.CallToolRequest, in threatLinksInput) (*mcp.CallToolResult, threatLinksResult, error) {
+	if in.ThreatID == "" {
+		return nil, threatLinksResult{}, errIDRequired
+	}
+	resp, err := h.api.GetThreatLinks(ctx, in.ThreatID)
+	if err != nil {
+		return nil, threatLinksResult{}, abnormal.APIError(err)
+	}
+	out := threatLinksResult{ThreatID: in.ThreatID, TenantID: resp.TenantID}
+	if resp.TenantName != nil {
+		out.TenantName = *resp.TenantName
+	}
+	for _, l := range resp.Links {
+		out.Links = append(out.Links, threatLinkItem{
+			AbxMessageID: l.AbxMessageID, AbxMessageIDStr: l.AbxMessageIDStr,
+			DomainLink: l.DomainLink, LinkType: l.LinkType, Source: l.Source,
+			DisplayText: l.DisplayText, LinkURL: l.LinkURL,
+		})
+	}
+	return nil, out, nil
+}
+
+func (h *handlers) listThreatAttachments(ctx context.Context, _ *mcp.CallToolRequest, in threatLinksInput) (*mcp.CallToolResult, threatAttachmentsResult, error) {
+	if in.ThreatID == "" {
+		return nil, threatAttachmentsResult{}, errIDRequired
+	}
+	resp, err := h.api.GetThreatAttachments(ctx, in.ThreatID)
+	if err != nil {
+		return nil, threatAttachmentsResult{}, abnormal.APIError(err)
+	}
+	out := threatAttachmentsResult{ThreatID: in.ThreatID, TenantID: resp.TenantID}
+	if resp.TenantName != nil {
+		out.TenantName = *resp.TenantName
+	}
+	for _, a := range resp.Attachments {
+		out.Attachments = append(out.Attachments, threatAttachmentItem{
+			AbxMessageID: a.AbxMessageID, AbxMessageIDStr: a.AbxMessageIDStr,
+			AttachmentName: a.AttachmentName,
+		})
 	}
 	return nil, out, nil
 }

@@ -1,7 +1,7 @@
 GO ?= go
 BIN := bin/abnormal-mcp
 
-.PHONY: all build test test-access vet fmt vuln check
+.PHONY: all build test test-access test-phase34 vet fmt vuln check
 
 all: check build
 
@@ -14,6 +14,9 @@ test:
 
 test-access:
 	@bash scripts/test-access.sh
+
+test-phase34:
+	@bash scripts/test-phase34.sh
 
 vet:
 	$(GO) vet ./...

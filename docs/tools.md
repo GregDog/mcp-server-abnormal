@@ -99,6 +99,84 @@ List user-reported phishing campaigns. Uses `lastReportedTime` filter (default l
 
 List mailbox submissions that were not analyzed. Optional `since` / `until` (RFC3339).
 
+## Threat enrichment
+
+### `abnormal_threat_links_list`
+
+| Parameter | Description |
+| --- | --- |
+| `threat_id` | Threat ID (UUID) |
+
+### `abnormal_threat_attachments_list`
+
+| Parameter | Description |
+| --- | --- |
+| `threat_id` | Threat ID (UUID) |
+
+## Employees
+
+### `abnormal_employee_get`
+
+| Parameter | Description |
+| --- | --- |
+| `email` | Employee email address |
+
+### `abnormal_employee_identity_get`
+
+Employee identity analysis (Genome) by email.
+
+### `abnormal_employee_logins_list`
+
+Recent login events (last 30 days). Returns bounded parsed rows, not raw CSV.
+
+| Parameter | Description |
+| --- | --- |
+| `email` | Employee email address |
+| `limit` | Max rows (default 50, max 50) |
+
+## ATO cases
+
+Requires Account Takeover license on the tenant.
+
+### `abnormal_cases_list`
+
+List ATO cases. Always applies `lastModifiedTime` filter (default last 24h).
+
+### `abnormal_case_get` / `abnormal_case_analysis_get`
+
+| Parameter | Description |
+| --- | --- |
+| `id` | Case ID |
+
+### `abnormal_case_action_get`
+
+| Parameter | Description |
+| --- | --- |
+| `case_id` | Case ID |
+| `action_id` | Action ID from `abnormal_case_update` |
+
+## Vendors (BEC)
+
+### `abnormal_vendors_list`
+
+List vendors your organization has interacted with.
+
+### `abnormal_vendor_get` / `abnormal_vendor_activity_list`
+
+| Parameter | Description |
+| --- | --- |
+| `vendor_domain` | Vendor email domain |
+
+### `abnormal_vendor_cases_list`
+
+List vendor compromise cases. Always applies `lastModifiedTime` filter (default last 24h).
+
+### `abnormal_vendor_case_get`
+
+| Parameter | Description |
+| --- | --- |
+| `id` | Vendor case ID |
+
 ## Response (opt-in)
 
 Enable with `ABNORMAL_ALLOW_RESPONSE=true` or `--allow-response`. All response tools require `confirm: true`; omitting it returns a preview only.
@@ -127,3 +205,13 @@ Remediate or restore (unremediate) all messages in a threat campaign. Returns `a
 | `confirm` | Must be `true` to execute |
 | `id` | Threat ID (UUID) |
 | `action` | `remediate` or `unremediate` |
+
+### `abnormal_case_update`
+
+Update ATO case status. Returns `action_id` — poll with `abnormal_case_action_get`.
+
+| Parameter | Description |
+| --- | --- |
+| `confirm` | Must be `true` to execute |
+| `id` | Case ID |
+| `action` | `action_required`, `acknowledge_resolved`, `acknowledge_in_progress`, or `acknowledge_not_an_attack` |

@@ -18,4 +18,7 @@ var (
 	errSearchFiltersRequired     = errors.New("search filters are required when remediate_all is true")
 	errTargetFolderRequired      = errors.New("target_folder is required when action is move_to_inbox")
 	errThreatActionRequired      = errors.New("action must be remediate or unremediate")
+	errEmailRequired             = errors.New("email is required")
+	errVendorDomainRequired      = errors.New("vendor_domain is required")
+	errCaseActionRequired        = errors.New("action is required")
 )
