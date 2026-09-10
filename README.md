@@ -20,13 +20,21 @@ MCP Client
 
 The server is read-only by default. Response and evidence download tools are opt-in and independent. Abnormal authorization still applies to every request.
 
-## Features (Phase 1)
+## Features
+
+**Read (always on)**
 
 - Threat list and get from the Threat Log
+- Threat action status poll (`abnormal_threat_action_get`)
 - Message search with ergonomic filters (`since`, `sender`, `sender_domain`, `recipient`, `subject`, `url`, `attachment`, `sender_ip`, `judgement`)
 - Search activity list and status
 - Message remediation history
 - AI Security Mailbox (formerly Abuse Mailbox) campaigns and unanalyzed reports
+
+**Response (opt-in: `ABNORMAL_ALLOW_RESPONSE=true`)**
+
+- Search remediation (`delete`, `move_to_inbox`) with `confirm: true` preview gate
+- Threat remediate / unremediate with `confirm: true` preview gate
 - US, EU, and FedRAMP base URLs (configurable)
 - stdio transport (default) and opt-in Streamable HTTP
 - Native Go binary and Docker image

@@ -2,7 +2,7 @@
 
 Read tools are always available. Response tools are opt-in via `ABNORMAL_ALLOW_RESPONSE` or `--allow-response`. Evidence download tools are opt-in via `ABNORMAL_ALLOW_EVIDENCE_DOWNLOAD` or `--allow-evidence-download`. Enabling response does not enable evidence download.
 
-High-impact response actions (Phase 2+) require `confirm: true`. Omitting it returns a preview and does not mutate.
+High-impact response actions require `confirm: true`. Omitting it returns a preview and does not mutate.
 
 A call succeeds only if:
 

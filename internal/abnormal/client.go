@@ -28,6 +28,9 @@ type API interface {
 	ListAbuseCampaigns(ctx context.Context, params ListAbuseCampaignsParams) (PaginatedAbuseCampaigns, error)
 	GetAbuseCampaign(ctx context.Context, campaignID string) (AbuseCampaignDetails, error)
 	ListUnanalyzedMailbox(ctx context.Context, start, end string) (AbuseMailboxUnanalyzedResponse, error)
+	RemediateSearch(ctx context.Context, req RemediationRequest) (RemediationResponse, error)
+	RemediateThreat(ctx context.Context, threatID string, action string) (PostThreatResponse, error)
+	GetThreatActionStatus(ctx context.Context, threatID, actionID string) (ThreatActionStatus, error)
 }
 
 // ListThreatsParams are query parameters for GET /threats.
@@ -204,6 +207,52 @@ type FolderLocation struct {
 type RemediationHistory struct {
 	RemediationHistory map[string]string `json:"remediation_history"`
 	FolderLocations    []FolderLocation  `json:"folder_locations"`
+}
+
+type MessageToRemediate struct {
+	TenantID            int     `json:"tenant_id"`
+	RawMessageID        string  `json:"raw_message_id"`
+	AbnormalMessageID   *string `json:"abnormal_message_id,omitempty"`
+	AbnormalMessageUUID *string `json:"abnormal_message_uuid,omitempty"`
+	MailboxName         string  `json:"mailbox_name"`
+	NativeUserID        string  `json:"native_user_id"`
+	Subject             string  `json:"subject"`
+	Sender              string  `json:"sender"`
+	ReceivedTime        string  `json:"received_time"`
+}
+
+type RemediationRequest struct {
+	Action            string               `json:"action"`
+	Source            string               `json:"source"`
+	RemediationReason string               `json:"remediation_reason"`
+	TargetFolder      *string              `json:"target_folder,omitempty"`
+	SubmitD360Case    *bool                `json:"submit_d360_case,omitempty"`
+	Messages          []MessageToRemediate `json:"messages,omitempty"`
+	RemediateAll      *bool                `json:"remediate_all,omitempty"`
+	SearchFilters     *SearchFilters       `json:"search_filters,omitempty"`
+	TenantIDs         []int                `json:"tenant_ids,omitempty"`
+}
+
+type RemediationResponse struct {
+	ActivityLogID int `json:"activity_log_id"`
+}
+
+type PostThreatRequest struct {
+	Action string `json:"action"`
+}
+
+type PostThreatResponse struct {
+	ActionID   string  `json:"action_id"`
+	StatusURL  string  `json:"status_url"`
+	TenantID   *int    `json:"tenantId"`
+	TenantName *string `json:"tenantName"`
+}
+
+type ThreatActionStatus struct {
+	Status      string  `json:"status"`
+	Description string  `json:"description"`
+	TenantID    *int    `json:"tenantId"`
+	TenantName  *string `json:"tenantName"`
 }
 
 type AbuseCampaignRef struct {
@@ -407,6 +456,25 @@ func (c *client) ListUnanalyzedMailbox(ctx context.Context, start, end string) (
 	}
 	var out AbuseMailboxUnanalyzedResponse
 	err := c.doJSON(ctx, http.MethodGet, "/abuse_mailbox/not_analyzed", q, nil, &out)
+	return out, err
+}
+
+func (c *client) RemediateSearch(ctx context.Context, req RemediationRequest) (RemediationResponse, error) {
+	var out RemediationResponse
+	err := c.doJSON(ctx, http.MethodPost, "/search/remediate", nil, req, &out)
+	return out, err
+}
+
+func (c *client) RemediateThreat(ctx context.Context, threatID, action string) (PostThreatResponse, error) {
+	var out PostThreatResponse
+	err := c.doJSON(ctx, http.MethodPost, "/threats/"+url.PathEscape(threatID), nil, PostThreatRequest{Action: action}, &out)
+	return out, err
+}
+
+func (c *client) GetThreatActionStatus(ctx context.Context, threatID, actionID string) (ThreatActionStatus, error) {
+	var out ThreatActionStatus
+	path := "/threats/" + url.PathEscape(threatID) + "/actions/" + url.PathEscape(actionID)
+	err := c.doJSON(ctx, http.MethodGet, path, nil, nil, &out)
 	return out, err
 }
 

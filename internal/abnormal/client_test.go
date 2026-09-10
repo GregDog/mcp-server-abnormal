@@ -247,6 +247,63 @@ func TestListUnanalyzedMailbox(t *testing.T) {
 	}
 }
 
+func TestRemediateSearch(t *testing.T) {
+	var gotMethod, gotPath string
+	var gotBody RemediationRequest
+	c := testClient(t, func(w http.ResponseWriter, r *http.Request) {
+		gotMethod = r.Method
+		gotPath = r.URL.Path
+		_ = json.NewDecoder(r.Body).Decode(&gotBody)
+		_ = json.NewEncoder(w).Encode(RemediationResponse{ActivityLogID: 99})
+	})
+	out, err := c.RemediateSearch(context.Background(), RemediationRequest{
+		Action: "delete", Source: "abnormal", RemediationReason: "other",
+		Messages: []MessageToRemediate{{TenantID: 1, RawMessageID: "m1", MailboxName: "inbox", NativeUserID: "u1", Subject: "s", Sender: "a@b.com", ReceivedTime: "2024-01-01T00:00:00Z"}},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if gotMethod != http.MethodPost || gotPath != "/v1/search/remediate" {
+		t.Fatalf("method=%s path=%s", gotMethod, gotPath)
+	}
+	if gotBody.Action != "delete" || out.ActivityLogID != 99 {
+		t.Fatalf("unexpected: body=%+v out=%+v", gotBody, out)
+	}
+}
+
+func TestRemediateThreat(t *testing.T) {
+	var gotBody PostThreatRequest
+	c := testClient(t, func(w http.ResponseWriter, r *http.Request) {
+		_ = json.NewDecoder(r.Body).Decode(&gotBody)
+		_ = json.NewEncoder(w).Encode(PostThreatResponse{ActionID: "act-1", StatusURL: "/status"})
+	})
+	out, err := c.RemediateThreat(context.Background(), "threat-1", "remediate")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if gotBody.Action != "remediate" || out.ActionID != "act-1" {
+		t.Fatalf("unexpected: body=%+v out=%+v", gotBody, out)
+	}
+}
+
+func TestGetThreatActionStatus(t *testing.T) {
+	var gotPath string
+	c := testClient(t, func(w http.ResponseWriter, r *http.Request) {
+		gotPath = r.URL.Path
+		_ = json.NewEncoder(w).Encode(ThreatActionStatus{Status: "completed", Description: "done"})
+	})
+	out, err := c.GetThreatActionStatus(context.Background(), "threat-1", "act-1")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if gotPath != "/v1/threats/threat-1/actions/act-1" {
+		t.Fatalf("path: %q", gotPath)
+	}
+	if out.Status != "completed" {
+		t.Fatalf("unexpected: %+v", out)
+	}
+}
+
 func TestFormatTimeFilter(t *testing.T) {
 	got := FormatTimeFilter("receivedTime", "2024-01-01T00:00:00Z", "2024-01-02T00:00:00Z")
 	want := "receivedTime gte 2024-01-01T00:00:00Z lte 2024-01-02T00:00:00Z"

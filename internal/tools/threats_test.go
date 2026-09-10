@@ -34,3 +34,28 @@ func TestGetThreat(t *testing.T) {
 		t.Fatalf("unexpected detail: %+v", detail)
 	}
 }
+
+func TestGetThreatActionRequiresIDs(t *testing.T) {
+	h := testHandlers()
+	_, _, err := h.getThreatAction(context.Background(), nil, threatActionGetInput{})
+	if err != errIDRequired {
+		t.Fatalf("got %v", err)
+	}
+	_, _, err = h.getThreatAction(context.Background(), nil, threatActionGetInput{ThreatID: "t1"})
+	if err != errActionIDRequired {
+		t.Fatalf("got %v", err)
+	}
+}
+
+func TestGetThreatAction(t *testing.T) {
+	h := testHandlers()
+	_, out, err := h.getThreatAction(context.Background(), nil, threatActionGetInput{
+		ThreatID: "t1", ActionID: "a1",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if out.Status != "completed" || out.ThreatID != "t1" {
+		t.Fatalf("unexpected: %+v", out)
+	}
+}

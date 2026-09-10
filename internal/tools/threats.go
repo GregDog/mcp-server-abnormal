@@ -50,6 +50,20 @@ type threatMessageItem struct {
 	ToAddresses       []string `json:"to_addresses,omitempty"`
 }
 
+type threatActionGetInput struct {
+	ThreatID string `json:"threat_id" jsonschema:"Threat ID (UUID)."`
+	ActionID string `json:"action_id" jsonschema:"Action ID returned from abnormal_threat_remediate."`
+}
+
+type threatActionStatus struct {
+	ThreatID    string `json:"threat_id"`
+	ActionID    string `json:"action_id"`
+	Status      string `json:"status"`
+	Description string `json:"description,omitempty"`
+	TenantID    *int   `json:"tenant_id,omitempty"`
+	TenantName  string `json:"tenant_name,omitempty"`
+}
+
 func registerThreats(server *mcp.Server, h *handlers) {
 	addTool(server, &mcp.Tool{
 		Name:        "abnormal_threats_list",
@@ -64,6 +78,13 @@ func registerThreats(server *mcp.Server, h *handlers) {
 		Description: "Get threat campaign details including bounded message metadata. The API currently returns at most about 10 messages per threat.",
 		Annotations: readOnly(),
 	}, h.getThreat)
+
+	addTool(server, &mcp.Tool{
+		Name:        "abnormal_threat_action_get",
+		Title:       "Get Abnormal threat action status",
+		Description: "Poll the status of a threat remediate or unremediate action returned by abnormal_threat_remediate.",
+		Annotations: readOnly(),
+	}, h.getThreatAction)
 }
 
 func (h *handlers) listThreats(ctx context.Context, _ *mcp.CallToolRequest, in threatListInput) (*mcp.CallToolResult, abnormal.Page[threatItem], error) {
@@ -108,6 +129,30 @@ func (h *handlers) getThreat(ctx context.Context, _ *mcp.CallToolRequest, in get
 		return nil, threatDetail{}, abnormal.APIError(err)
 	}
 	return nil, mapThreatDetail(resp), nil
+}
+
+func (h *handlers) getThreatAction(ctx context.Context, _ *mcp.CallToolRequest, in threatActionGetInput) (*mcp.CallToolResult, threatActionStatus, error) {
+	if in.ThreatID == "" {
+		return nil, threatActionStatus{}, errIDRequired
+	}
+	if in.ActionID == "" {
+		return nil, threatActionStatus{}, errActionIDRequired
+	}
+	resp, err := h.api.GetThreatActionStatus(ctx, in.ThreatID, in.ActionID)
+	if err != nil {
+		return nil, threatActionStatus{}, abnormal.APIError(err)
+	}
+	out := threatActionStatus{
+		ThreatID:    in.ThreatID,
+		ActionID:    in.ActionID,
+		Status:      resp.Status,
+		Description: resp.Description,
+		TenantID:    resp.TenantID,
+	}
+	if resp.TenantName != nil {
+		out.TenantName = *resp.TenantName
+	}
+	return nil, out, nil
 }
 
 func mapThreatDetail(t abnormal.ThreatDetails) threatDetail {

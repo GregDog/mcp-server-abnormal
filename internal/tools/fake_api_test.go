@@ -83,6 +83,25 @@ func (f *fakeAPI) ListUnanalyzedMailbox(_ context.Context, _, _ string) (abnorma
 	}, nil
 }
 
+func (f *fakeAPI) RemediateSearch(_ context.Context, _ abnormal.RemediationRequest) (abnormal.RemediationResponse, error) {
+	return abnormal.RemediationResponse{ActivityLogID: 42}, nil
+}
+
+func (f *fakeAPI) RemediateThreat(_ context.Context, id, action string) (abnormal.PostThreatResponse, error) {
+	return abnormal.PostThreatResponse{
+		ActionID:  "action-1",
+		StatusURL: "/threats/" + id + "/actions/action-1",
+	}, nil
+}
+
+func (f *fakeAPI) GetThreatActionStatus(_ context.Context, _, _ string) (abnormal.ThreatActionStatus, error) {
+	return abnormal.ThreatActionStatus{Status: "completed", Description: "done"}, nil
+}
+
 func testHandlers() *handlers {
 	return &handlers{api: &fakeAPI{}}
+}
+
+func testResponseHandlers() *handlers {
+	return &handlers{api: &fakeAPI{}, allowResponse: true}
 }

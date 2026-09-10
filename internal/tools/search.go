@@ -2,8 +2,6 @@ package tools
 
 import (
 	"context"
-	"fmt"
-	"strings"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 
@@ -106,10 +104,12 @@ func registerSearch(server *mcp.Server, h *handlers) {
 }
 
 func (h *handlers) searchMessages(ctx context.Context, _ *mcp.CallToolRequest, in searchMessagesInput) (*mcp.CallToolResult, abnormal.Page[searchMessageItem], error) {
-	if in.Sender != "" && in.SenderDomain != "" {
-		return nil, abnormal.Page[searchMessageItem]{}, errSenderConflict
-	}
-	since, until, err := defaultSinceUntil(in.Since, in.Until)
+	filters, err := buildSearchFilters(searchFiltersInput{
+		Since: in.Since, Until: in.Until, Sender: in.Sender, SenderDomain: in.SenderDomain,
+		Recipient: in.Recipient, Subject: in.Subject, URL: in.URL, Attachment: in.Attachment,
+		SenderIP: in.SenderIP, Judgement: in.Judgement, JudgementSource: in.JudgementSource,
+		InternetMessageID: in.InternetMessageID,
+	})
 	if err != nil {
 		return nil, abnormal.Page[searchMessageItem]{}, err
 	}
@@ -117,28 +117,6 @@ func (h *handlers) searchMessages(ctx context.Context, _ *mcp.CallToolRequest, i
 	source := in.Source
 	if source == "" {
 		source = "abnormal"
-	}
-
-	filters := abnormal.SearchFilters{
-		StartTime:         since,
-		EndTime:           until,
-		Subject:           strPtr(in.Subject),
-		RecipientEmail:    strPtr(in.Recipient),
-		AttachmentName:    strPtr(in.Attachment),
-		BodyLink:          strPtr(in.URL),
-		SenderIP:          strPtr(in.SenderIP),
-		Judgement:         strPtr(in.Judgement),
-		JudgementSource:   strPtr(in.JudgementSource),
-		InternetMessageID: strPtr(in.InternetMessageID),
-	}
-	if in.Sender != "" {
-		filters.SenderEmail = strPtr(in.Sender)
-	}
-	if in.SenderDomain != "" {
-		domain := strings.TrimPrefix(strings.TrimSpace(in.SenderDomain), "@")
-		domain = strings.ReplaceAll(domain, ".", "\\.")
-		filters.SenderEmail = strPtr(fmt.Sprintf(".*@%s$", domain))
-		filters.UseSenderRegex = boolPtr(true)
 	}
 
 	pageSize, pageNumber := pageArgs(in.Limit, in.Cursor)

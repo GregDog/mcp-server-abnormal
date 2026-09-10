@@ -8,14 +8,17 @@ import (
 
 // Register adds Abnormal MCP tools to the server.
 func Register(server *mcp.Server, api abnormal.API, opts Options) {
-	h := &handlers{api: api}
+	h := &handlers{api: api, allowResponse: opts.AllowResponse}
 	registerThreats(server, h)
 	registerSearch(server, h)
 	registerMessages(server, h)
 	registerMailbox(server, h)
-	// Response and evidence tools are registered in later phases behind opts.AllowResponse / opts.AllowEvidenceDownload.
+	if opts.AllowResponse {
+		registerResponse(server, h)
+	}
 }
 
 type handlers struct {
-	api abnormal.API
+	api           abnormal.API
+	allowResponse bool
 }
