@@ -1,0 +1,50 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.GregDog/mcp-server-abnormal",
+  "title": "Abnormal MCP Server",
+  "description": "MCP server for Abnormal Security: threats, message search, and AI Security Mailbox.",
+  "version": "0.1.0",
+  "repository": {
+    "url": "https://github.com/GregDog/mcp-server-abnormal",
+    "source": "github"
+  },
+  "websiteUrl": "https://github.com/GregDog/mcp-server-abnormal",
+  "packages": [
+    {
+      "registryType": "oci",
+      "identifier": "ghcr.io/gregdog/mcp-server-abnormal:v0.1.0",
+      "transport": {
+        "type": "stdio"
+      },
+      "packageArguments": [
+        {
+          "type": "positional",
+          "value": "serve"
+        }
+      ],
+      "environmentVariables": [
+        {
+          "name": "ABNORMAL_API_TOKEN",
+          "description": "Abnormal REST API bearer token",
+          "isRequired": true,
+          "isSecret": true
+        },
+        {
+          "name": "ABNORMAL_BASE_URL",
+          "description": "Abnormal API base URL",
+          "default": "https://api.abnormalplatform.com/v1"
+        },
+        {
+          "name": "ABNORMAL_ALLOW_RESPONSE",
+          "description": "Enable response MCP tools",
+          "default": "false"
+        },
+        {
+          "name": "ABNORMAL_ALLOW_EVIDENCE_DOWNLOAD",
+          "description": "Enable evidence download MCP tools",
+          "default": "false"
+        }
+      ]
+    }
+  ]
+}

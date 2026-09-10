@@ -1,0 +1,6 @@
+FROM gcr.io/distroless/static-debian12:nonroot
+LABEL io.modelcontextprotocol.server.name="io.github.GregDog/mcp-server-abnormal"
+COPY abnormal-mcp /abnormal-mcp
+USER nonroot:nonroot
+ENTRYPOINT ["/abnormal-mcp"]
+CMD ["serve"]

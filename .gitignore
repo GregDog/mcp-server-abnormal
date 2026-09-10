@@ -1,0 +1,13 @@
+/bin/
+/dist/
+/coverage.out
+*.exe
+*.test
+.env
+.env.*
+!.env.example
+.local/
+.DS_Store
+.idea/
+.vscode/
+*.swp

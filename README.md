@@ -1,0 +1,115 @@
+# Abnormal MCP Server
+
+[![CI](https://github.com/GregDog/mcp-server-abnormal/actions/workflows/ci.yml/badge.svg)](https://github.com/GregDog/mcp-server-abnormal/actions/workflows/ci.yml)
+[![Go](https://img.shields.io/badge/Go-1.27-00ADD8?logo=go&logoColor=white)](https://go.dev/)
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
+
+A secure, open-source [Model Context Protocol](https://modelcontextprotocol.io/) server for [Abnormal Security](https://abnormalsecurity.com/).
+
+This project is **not** an official Abnormal product and is not endorsed by Abnormal AI.
+
+## Overview
+
+`abnormal-mcp` lets MCP clients such as Cursor and Claude Desktop query Abnormal Security over **stdio** (default) or **Streamable HTTP**. It uses a lightweight handwritten client against the [Abnormal Security Client API](https://app.swaggerhub.com/apis-docs/abnormal-security/abx/1.4.3).
+
+```text
+MCP Client
+    → Abnormal MCP Server (stdio or HTTP)
+        → Abnormal REST API
+```
+
+The server is read-only by default. Response and evidence download tools are opt-in and independent. Abnormal authorization still applies to every request.
+
+## Features (Phase 1)
+
+- Threat list and get from the Threat Log
+- Message search with ergonomic filters (`since`, `sender`, `sender_domain`, `recipient`, `subject`, `url`, `attachment`, `sender_ip`, `judgement`)
+- Search activity list and status
+- Message remediation history
+- AI Security Mailbox (formerly Abuse Mailbox) campaigns and unanalyzed reports
+- US, EU, and FedRAMP base URLs (configurable)
+- stdio transport (default) and opt-in Streamable HTTP
+- Native Go binary and Docker image
+- MCP Registry listing on tagged releases (`io.github.GregDog/mcp-server-abnormal`)
+
+## Quick Start
+
+Create an Abnormal REST API token in the Abnormal portal under Integrations → Abnormal REST API.
+
+```bash
+export ABNORMAL_API_TOKEN="your-token"
+abnormal-mcp serve
+```
+
+## Installation
+
+### From source
+
+```bash
+git clone https://github.com/GregDog/mcp-server-abnormal.git
+cd mcp-server-abnormal
+make build
+```
+
+### Docker
+
+```bash
+docker run --rm -i \
+  -e ABNORMAL_API_TOKEN \
+  ghcr.io/gregdog/mcp-server-abnormal serve
+```
+
+## Client configuration
+
+### Cursor (stdio)
+
+See [examples/cursor.mcp.json](examples/cursor.mcp.json).
+
+### Claude Desktop
+
+See [examples/claude-desktop.json](examples/claude-desktop.json).
+
+## Tools
+
+| Tool | Description |
+| --- | --- |
+| `abnormal_threats_list` | List threat campaigns (paginated) |
+| `abnormal_threat_get` | Get threat details and messages |
+| `abnormal_search_messages` | Search messages with ergonomic filters |
+| `abnormal_search_activities_list` | List search/remediation activities |
+| `abnormal_search_activity_get` | Get activity status and remediation details |
+| `abnormal_message_remediation_history` | Remediation history for a message |
+| `abnormal_mailbox_campaigns_list` | List AI Security Mailbox campaigns |
+| `abnormal_mailbox_campaign_get` | Get campaign details |
+| `abnormal_mailbox_unanalyzed_list` | List unanalyzed mailbox submissions |
+
+See [docs/tools.md](docs/tools.md) for parameters.
+
+## Configuration
+
+| Variable | Default | Purpose |
+| --- | --- | --- |
+| `ABNORMAL_API_TOKEN` | (required) | Bearer token |
+| `ABNORMAL_BASE_URL` | `https://api.abnormalplatform.com/v1` | API base URL |
+| `ABNORMAL_ALLOW_RESPONSE` | `false` | Enable response tools (Phase 2+) |
+| `ABNORMAL_ALLOW_EVIDENCE_DOWNLOAD` | `false` | Enable evidence download (Phase 5+) |
+| `ABNORMAL_MCP_TRANSPORT` | `stdio` | `stdio` or `http` |
+
+Full list: [docs/configuration.md](docs/configuration.md).
+
+## Security
+
+Read tools are always on. Response and evidence tools require explicit opt-in. See [docs/security.md](docs/security.md) and [SECURITY.md](SECURITY.md).
+
+## Development
+
+```bash
+make check
+make test-access   # optional live API smoke test
+```
+
+See [docs/development.md](docs/development.md).
+
+## License
+
+Apache-2.0. See [LICENSE](LICENSE).

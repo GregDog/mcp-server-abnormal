@@ -1,0 +1,142 @@
+package tools
+
+import (
+	"context"
+
+	"github.com/modelcontextprotocol/go-sdk/mcp"
+
+	"github.com/GregDog/mcp-server-abnormal/internal/abnormal"
+)
+
+type threatListInput struct {
+	listInput
+	Since      string `json:"since,omitempty" jsonschema:"Start of receivedTime filter (RFC3339). Default last 24 hours."`
+	Until      string `json:"until,omitempty" jsonschema:"End of receivedTime filter (RFC3339). Default now."`
+	Source     string `json:"source,omitempty" jsonschema:"Threat source filter: all, attacks, borderline, or spam."`
+	Sender     string `json:"sender,omitempty" jsonschema:"Filter by sender name or email."`
+	Recipient  string `json:"recipient,omitempty" jsonschema:"Filter by recipient name or email."`
+	Subject    string `json:"subject,omitempty" jsonschema:"Filter by email subject."`
+	AttackType string `json:"attack_type,omitempty" jsonschema:"Filter by attack type."`
+}
+
+type threatItem struct {
+	ThreatID string `json:"threat_id"`
+}
+
+type threatDetail struct {
+	ThreatID       string              `json:"threat_id"`
+	RecipientCount int                 `json:"recipient_count"`
+	TenantID       *int                `json:"tenant_id,omitempty"`
+	TenantName     *string             `json:"tenant_name,omitempty"`
+	Messages       []threatMessageItem `json:"messages"`
+}
+
+type threatMessageItem struct {
+	ThreatID          string   `json:"threat_id"`
+	AbxMessageID      int64    `json:"abx_message_id"`
+	AbxMessageIDStr   string   `json:"abx_message_id_str,omitempty"`
+	AbxPortalURL      string   `json:"abx_portal_url,omitempty"`
+	Subject           string   `json:"subject,omitempty"`
+	FromAddress       string   `json:"from_address,omitempty"`
+	FromName          string   `json:"from_name,omitempty"`
+	RecipientAddress  string   `json:"recipient_address,omitempty"`
+	RecipientName     string   `json:"recipient_name,omitempty"`
+	ReceivedTime      string   `json:"received_time,omitempty"`
+	SentTime          string   `json:"sent_time,omitempty"`
+	RemediationStatus string   `json:"remediation_status,omitempty"`
+	AttackType        string   `json:"attack_type,omitempty"`
+	AttackVector      string   `json:"attack_vector,omitempty"`
+	SenderDomain      string   `json:"sender_domain,omitempty"`
+	ToAddresses       []string `json:"to_addresses,omitempty"`
+}
+
+func registerThreats(server *mcp.Server, h *handlers) {
+	addTool(server, &mcp.Tool{
+		Name:        "abnormal_threats_list",
+		Title:       "List Abnormal threats",
+		Description: "List threat campaigns from the Abnormal Threat Log. Always applies a receivedTime filter so pagination works. Results are paginated.",
+		Annotations: readOnly(),
+	}, h.listThreats)
+
+	addTool(server, &mcp.Tool{
+		Name:        "abnormal_threat_get",
+		Title:       "Get an Abnormal threat",
+		Description: "Get threat campaign details including bounded message metadata. The API currently returns at most about 10 messages per threat.",
+		Annotations: readOnly(),
+	}, h.getThreat)
+}
+
+func (h *handlers) listThreats(ctx context.Context, _ *mcp.CallToolRequest, in threatListInput) (*mcp.CallToolResult, abnormal.Page[threatItem], error) {
+	since, until, err := defaultSinceUntil(in.Since, in.Until)
+	if err != nil {
+		return nil, abnormal.Page[threatItem]{}, err
+	}
+	pageSize, pageNumber := pageArgs(in.Limit, in.Cursor)
+	filter := abnormal.FormatTimeFilter("receivedTime", since, until)
+
+	resp, err := h.api.ListThreats(ctx, abnormal.ListThreatsParams{
+		Filter:     filter,
+		PageSize:   pageSize,
+		PageNumber: pageNumber,
+		Source:     in.Source,
+		Sender:     in.Sender,
+		Recipient:  in.Recipient,
+		Subject:    in.Subject,
+		AttackType: in.AttackType,
+	})
+	if err != nil {
+		return nil, abnormal.Page[threatItem]{}, abnormal.APIError(err)
+	}
+
+	items := make([]threatItem, 0, len(resp.Threats))
+	for _, t := range resp.Threats {
+		items = append(items, threatItem{ThreatID: t.ThreatID})
+	}
+	total := len(items)
+	if resp.NextPageNumber > 0 {
+		total = pageNumber * pageSize
+	}
+	return nil, mapPage(items, total, resp.PageNumber, resp.NextPageNumber), nil
+}
+
+func (h *handlers) getThreat(ctx context.Context, _ *mcp.CallToolRequest, in getInput) (*mcp.CallToolResult, threatDetail, error) {
+	if in.ID == "" {
+		return nil, threatDetail{}, errIDRequired
+	}
+	resp, err := h.api.GetThreat(ctx, in.ID, abnormal.MaxPageSize, 1)
+	if err != nil {
+		return nil, threatDetail{}, abnormal.APIError(err)
+	}
+	return nil, mapThreatDetail(resp), nil
+}
+
+func mapThreatDetail(t abnormal.ThreatDetails) threatDetail {
+	messages := make([]threatMessageItem, 0, len(t.Messages))
+	for _, m := range t.Messages {
+		messages = append(messages, threatMessageItem{
+			ThreatID:          m.ThreatID,
+			AbxMessageID:      m.AbxMessageID,
+			AbxMessageIDStr:   m.AbxMessageIDStr,
+			AbxPortalURL:      m.AbxPortalURL,
+			Subject:           m.Subject,
+			FromAddress:       m.FromAddress,
+			FromName:          m.FromName,
+			RecipientAddress:  m.RecipientAddress,
+			RecipientName:     m.RecipientName,
+			ReceivedTime:      m.ReceivedTime,
+			SentTime:          m.SentTime,
+			RemediationStatus: m.RemediationStatus,
+			AttackType:        m.AttackType,
+			AttackVector:      m.AttackVector,
+			SenderDomain:      m.SenderDomain,
+			ToAddresses:       m.ToAddresses,
+		})
+	}
+	return threatDetail{
+		ThreatID:       t.ThreatID,
+		RecipientCount: t.RecipientCount,
+		TenantID:       t.TenantID,
+		TenantName:     t.TenantName,
+		Messages:       messages,
+	}
+}

@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "abnormal": {
+      "command": "/absolute/path/to/mcp-server-abnormal/bin/abnormal-mcp",
+      "args": ["serve"],
+      "env": {
+        "ABNORMAL_API_TOKEN": "your-token-here",
+        "ABNORMAL_BASE_URL": "https://api.abnormalplatform.com/v1"
+      }
+    }
+  }
+}

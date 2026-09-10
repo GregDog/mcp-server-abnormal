@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "abnormal": {
+      "command": "bash",
+      "args": ["${workspaceFolder}/scripts/mcp-serve.sh"]
+    }
+  }
+}
