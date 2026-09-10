@@ -2,6 +2,12 @@
 
 All notable changes to this project are documented in this file.
 
+## [1.0.1] - 2026-09-10
+
+### Fixed
+
+- Shorten MCP Registry `server.json` description to satisfy the 100-character validation limit
+
 ## [1.0.0] - 2026-09-10
 
 First release with all six planned phases: core investigation, response, enrichment, vendor/BEC, evidence download, and hardening.
@@ -22,4 +28,5 @@ First release with all six planned phases: core investigation, response, enrichm
 - Time-window filters on threat and mailbox list tools no longer prefix a duplicate `filter=` in the query value
 - `abnormal_message_remediation_history` decodes `folder_locations` as `{name, display_name}` objects per the live API response
 
+[1.0.1]: https://github.com/GregDog/mcp-server-abnormal/releases/tag/v1.0.1
 [1.0.0]: https://github.com/GregDog/mcp-server-abnormal/releases/tag/v1.0.0
