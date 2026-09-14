@@ -32,6 +32,14 @@ func pageArgs(limit int, cursor string) (pageSize int, pageNumber int) {
 	return abnormal.ClampLimit(limit), abnormal.PageNumberFromCursor(cursor)
 }
 
+func defaultSinceUntilDays(days int) (string, string, error) {
+	if days <= 0 {
+		days = 30
+	}
+	now := time.Now().UTC()
+	return now.Add(-time.Duration(days) * 24 * time.Hour).Format(time.RFC3339), now.Format(time.RFC3339), nil
+}
+
 func defaultSinceUntil(since, until string) (string, string, error) {
 	now := time.Now().UTC()
 	if until == "" {

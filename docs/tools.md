@@ -177,6 +177,80 @@ List vendor compromise cases. Always applies `lastModifiedTime` filter (default 
 | --- | --- |
 | `id` | Vendor case ID |
 
+## Detection 360
+
+Detection 360 tools use `GET` / `POST /detection360/reports` from the official Abnormal Client API v1.4.3. Your API token needs the **Detection 360** endpoint group (read for list, write for submit).
+
+### `abnormal_detection360_reports_list`
+
+List submitted Detection 360 misclassification reports.
+
+| Parameter | Description |
+| --- | --- |
+| `inquiry_type` | `MISSED_ATTACK` or `FALSE_POSITIVE` (required) |
+| `since` | Start time (RFC3339). Default last 30 days when both `since` and `until` are omitted |
+| `until` | End time (RFC3339). Default now |
+| `status` | Optional filters: `UNREVIEWED`, `CONTAINING_ATTACK`, `IMPROVING_PLATFORM`, `RESOLVED`, `CORRECTING_JUDGEMENT` |
+
+`MISSED_ATTACK` covers missed-attack, missed-spam, and missed-graymail submissions. `FALSE_POSITIVE` covers false-positive and false-negative submissions.
+
+### `abnormal_detection360_report_submit` (opt-in)
+
+Submit a false positive or missed email report to Detection 360. Requires `ABNORMAL_ALLOW_RESPONSE=true` and `confirm: true`.
+
+| Parameter | Description |
+| --- | --- |
+| `confirm` | Must be `true` to execute |
+| `report_type` | `false-positive`, `false-negative`, `missed-attack`, `missed-spam`, or `missed-graymail` |
+| `portal_link` | Required for `false-positive` — use `abx_portal_url` from `abnormal_threat_get` |
+| `recipient_email` | Required for missed/* and `false-negative` |
+| `sender_email` | Required for missed/* and `false-negative` |
+| `subject` | Required for missed/* and `false-negative` |
+| `received_date` | Optional `YYYY-MM-DD` |
+| `description` | Optional analyst context |
+
+**Examples**
+
+- **False positive** (message wrongly flagged): `report_type: false-positive`, `portal_link` from threat details.
+- **Missed attack** (malicious email not caught): `report_type: missed-attack`, plus recipient/sender/subject from the message.
+- **Missed spam / graymail**: same fields as missed attack with `report_type: missed-spam` or `missed-graymail`.
+
+This is the dedicated D360 submission path. `abnormal_search_remediate` can also set `submit_d360_case: true` with `remediation_reason: false_negative` when remediating via search — use one approach, not both for the same issue.
+
+## URL rewrite
+
+### `abnormal_url_rewrite_clicks_list`
+
+List users who clicked or clickthrough on Abnormal-rewritten URLs in email (`GET /url-rewrite/clicked-events`). Your API token needs the **URL Rewrite** endpoint group (read).
+
+| Parameter | Description |
+| --- | --- |
+| `since` | Start time (RFC3339). Default last 24 hours |
+| `until` | End time (RFC3339). Default now |
+| `recipient` | Filter by recipient email address |
+| `event_type` | `click` or `clickthrough` |
+| `limit` | Page size (default 20, max 50) |
+| `cursor` | Offset token from `next_cursor` in a previous response |
+
+Times are converted to Unix timestamps for the API. Pagination uses offset tokens, not page numbers.
+
+## Audit logs
+
+### `abnormal_audit_logs_list`
+
+List Abnormal portal audit logs for analyst accountability and correlation (`GET /auditlogs`). Your API token needs the **Audit Logs** endpoint group (read).
+
+| Parameter | Description |
+| --- | --- |
+| `since` | Start of `timestamp` filter (RFC3339). Default last 24 hours |
+| `until` | End of `timestamp` filter (RFC3339). Default now |
+| `action` | Space-delimited action filters (e.g. `view_message_content`) |
+| `category` | Space-delimited category filters (e.g. `abuse_mailbox threat_log`) |
+| `status` | `SUCCESS` or `FAILURE` |
+| `source_ip` | Filter by source IP address |
+| `limit` | Page size (default 20, max 50) |
+| `cursor` | Page number from a previous response |
+
 ## Response (opt-in)
 
 Enable with `ABNORMAL_ALLOW_RESPONSE=true` or `--allow-response`. All response tools require `confirm: true`; omitting it returns a preview only.
@@ -195,6 +269,7 @@ Delete or move messages from search results. Returns `activity_log_id` — poll 
 | `remediate_all` | When `true`, remediate all messages matching search filters |
 | `messages` | Specific messages when `remediate_all` is `false` |
 | `since` / `until`, `sender`, `recipient`, etc. | Search filters when `remediate_all` is `true` (same mapping as `abnormal_search_messages`) |
+| `submit_d360_case` | Optional — open a D360 case during remediation when `remediation_reason` is `false_negative`. Prefer `abnormal_detection360_report_submit` for standalone reports |
 
 ### `abnormal_threat_remediate`
 
@@ -215,6 +290,10 @@ Update ATO case status. Returns `action_id` — poll with `abnormal_case_action_
 | `confirm` | Must be `true` to execute |
 | `id` | Case ID |
 | `action` | `action_required`, `acknowledge_resolved`, `acknowledge_in_progress`, or `acknowledge_not_an_attack` |
+
+### `abnormal_detection360_report_submit`
+
+See [Detection 360](#detection-360) above.
 
 ## Evidence download (opt-in)
 

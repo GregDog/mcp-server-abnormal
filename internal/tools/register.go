@@ -20,12 +20,16 @@ func Register(server *mcp.Server, api abnormal.API, opts Options) {
 	registerEmployees(server, h)
 	registerCases(server, h)
 	registerVendors(server, h)
+	registerDetection360(server, h)
+	registerURLRewrite(server, h)
+	registerAuditLogs(server, h)
 	if opts.AllowEvidenceDownload {
 		registerEvidence(server, h)
 	}
 	if opts.AllowResponse {
 		registerResponse(server, h)
 		registerCaseResponse(server, h)
+		registerDetection360Response(server, h)
 	}
 }
 

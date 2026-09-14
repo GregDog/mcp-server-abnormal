@@ -21,4 +21,6 @@ You can also pass `--allow-response`, `--allow-evidence-download`, `--transport`
 
 Create tokens in the Abnormal portal under Integrations → Abnormal REST API. The token value is shown once.
 
+Endpoint groups used by this server include Threats, Search and Respond, Messages, AI Security Mailbox (Abuse Campaigns), Cases, Vendors, Employees, and Detection 360. Response and Detection 360 submit tools require **Write** access on the relevant groups.
+
 The API token is never written to logs.

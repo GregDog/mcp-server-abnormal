@@ -34,6 +34,7 @@ The server is read-only by default. Response and evidence download tools are opt
 - Employee profile, identity (Genome), and recent logins
 - ATO case list, detail, and analysis
 - Vendor list, detail, activity, and vendor compromise cases
+- Detection 360 report list (false positives and missed attacks)
 - US, EU, and FedRAMP base URLs (configurable)
 
 **Response (opt-in: `ABNORMAL_ALLOW_RESPONSE=true`)**
@@ -41,6 +42,7 @@ The server is read-only by default. Response and evidence download tools are opt
 - Search remediation (`delete`, `move_to_inbox`) with `confirm: true` preview gate
 - Threat remediate / unremediate with `confirm: true` preview gate
 - ATO case status update with `confirm: true` preview gate
+- Detection 360 report submit (false positive, missed attack/spam/graymail) with `confirm: true` preview gate
 
 **Evidence download (opt-in: `ABNORMAL_ALLOW_EVIDENCE_DOWNLOAD=true`)**
 
@@ -91,7 +93,7 @@ See [examples/claude-desktop.json](examples/claude-desktop.json).
 
 ## Tools
 
-**24 read tools** are always registered. With `ABNORMAL_ALLOW_EVIDENCE_DOWNLOAD=true`, five evidence tools are added (29 total). With `ABNORMAL_ALLOW_RESPONSE=true`, three response tools are added (27 total, or 32 with both gates enabled).
+**27 read tools** are always registered. With `ABNORMAL_ALLOW_EVIDENCE_DOWNLOAD=true`, five evidence tools are added (32 total). With `ABNORMAL_ALLOW_RESPONSE=true`, four response tools are added (31 total, or 36 with both gates enabled).
 
 | Area | Tools |
 | --- | --- |
@@ -102,8 +104,11 @@ See [examples/claude-desktop.json](examples/claude-desktop.json).
 | Employees | `abnormal_employee_get`, `abnormal_employee_identity_get`, `abnormal_employee_logins_list` |
 | ATO cases | `abnormal_cases_list`, `abnormal_case_get`, `abnormal_case_analysis_get`, `abnormal_case_action_get` |
 | Vendors | `abnormal_vendors_list`, `abnormal_vendor_get`, `abnormal_vendor_activity_list`, `abnormal_vendor_cases_list`, `abnormal_vendor_case_get` |
+| Detection 360 | `abnormal_detection360_reports_list` |
+| URL rewrite | `abnormal_url_rewrite_clicks_list` |
+| Audit logs | `abnormal_audit_logs_list` |
 | Evidence (opt-in) | `abnormal_message_eml_get`, `abnormal_search_message_eml_get`, `abnormal_message_attachment_get`, `abnormal_message_attachment_download`, `abnormal_search_attachment_download` |
-| Response (opt-in) | `abnormal_search_remediate`, `abnormal_threat_remediate`, `abnormal_case_update` |
+| Response (opt-in) | `abnormal_search_remediate`, `abnormal_threat_remediate`, `abnormal_case_update`, `abnormal_detection360_report_submit` |
 
 See [docs/tools.md](docs/tools.md) for parameters.
 

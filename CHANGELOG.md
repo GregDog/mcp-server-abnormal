@@ -2,6 +2,14 @@
 
 All notable changes to this project are documented in this file.
 
+## [Unreleased]
+
+### Added
+
+- Detection 360 tools: `abnormal_detection360_reports_list` (read) and `abnormal_detection360_report_submit` (gated by `ABNORMAL_ALLOW_RESPONSE` with `confirm: true`) for false positives and missed email reports
+- URL rewrite click events: `abnormal_url_rewrite_clicks_list` (`GET /url-rewrite/clicked-events`)
+- Portal audit logs: `abnormal_audit_logs_list` (`GET /auditlogs`)
+
 ## [1.0.1] - 2026-09-10
 
 ### Fixed

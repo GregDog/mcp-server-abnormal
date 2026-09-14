@@ -214,6 +214,53 @@ func (f *fakeAPI) DownloadSearchAttachment(_ context.Context, params abnormal.Se
 	}, nil
 }
 
+func (f *fakeAPI) ListDetection360Reports(_ context.Context, params abnormal.ListDetection360ReportsParams) ([]abnormal.Detection360Case, error) {
+	return []abnormal.Detection360Case{{
+		ID:                 1,
+		InquiryType:        params.InquiryType,
+		Status:             "UNREVIEWED",
+		SubmissionDatetime: "2026-01-01T00:00:00Z",
+		SubmittedBy:        abnormal.User{Name: "Analyst", Email: "analyst@example.com"},
+		Messages:           []int64{123},
+	}}, nil
+}
+
+func (f *fakeAPI) SubmitDetection360Report(_ context.Context, req abnormal.Detection360SubmitRequest) error {
+	if req.ReportType == "" {
+		return errors.New("missing report_type")
+	}
+	return nil
+}
+
+func (f *fakeAPI) ListClickedEvents(_ context.Context, _ abnormal.ListClickedEventsParams) (abnormal.ClickedEventsResponse, error) {
+	return abnormal.ClickedEventsResponse{
+		Data: []abnormal.SoarClickedEvent{{
+			Type:        "Click",
+			Link:        "https://example.com",
+			ClickedTime: 1704067200,
+			User:        abnormal.SoarUserAddress{EmailAddress: "user@example.com"},
+		}},
+		Metadata: abnormal.ClickedEventsResponseMetadata{
+			Pagination: abnormal.ClickedEventsPaginationMetadata{},
+		},
+	}, nil
+}
+
+func (f *fakeAPI) ListAuditLogs(_ context.Context, _ abnormal.ListAuditLogsParams) (abnormal.AuditLogResponse, error) {
+	return abnormal.AuditLogResponse{
+		AuditLogs: []abnormal.AuditLog{{
+			Timestamp:  "2026-01-01T00:00:00Z",
+			Category:   "threat_log",
+			Action:     "view_message_content",
+			Status:     "SUCCESS",
+			SourceIP:   "1.2.3.4",
+			TenantName: "Example",
+			User:       abnormal.AuditLogUser{Email: "analyst@example.com"},
+		}},
+		PageNumber: 1,
+	}, nil
+}
+
 func testHandlers() *handlers {
 	return &handlers{api: &fakeAPI{}}
 }

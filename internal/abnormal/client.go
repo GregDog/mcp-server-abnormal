@@ -51,6 +51,10 @@ type API interface {
 	GetMessageAttachmentSignals(ctx context.Context, messageID int64, attachmentName string) (AttachmentSignals, error)
 	DownloadMessageAttachment(ctx context.Context, messageID int64, attachmentName string) (BinaryResponse, error)
 	DownloadSearchAttachment(ctx context.Context, params SearchAttachmentDownloadParams) (BinaryResponse, error)
+	ListDetection360Reports(ctx context.Context, params ListDetection360ReportsParams) ([]Detection360Case, error)
+	SubmitDetection360Report(ctx context.Context, req Detection360SubmitRequest) error
+	ListClickedEvents(ctx context.Context, params ListClickedEventsParams) (ClickedEventsResponse, error)
+	ListAuditLogs(ctx context.Context, params ListAuditLogsParams) (AuditLogResponse, error)
 }
 
 // ListThreatsParams are query parameters for GET /threats.

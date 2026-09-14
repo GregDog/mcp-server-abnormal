@@ -52,7 +52,7 @@ The Streamable HTTP transport (`ABNORMAL_MCP_TRANSPORT=http`) is for **local dev
 
 ## Response action audit log
 
-Confirmed response tool executions (`confirm: true`) emit structured `slog` info lines with tool name, resource type/id, and action. Tokens and message bodies are never logged.
+Confirmed response tool executions (`confirm: true`) — including remediation, case updates, and Detection 360 report submission — emit structured `slog` info lines with tool name, resource type/id, and action. Tokens and message bodies are never logged.
 
 ## Evidence access audit log
 
