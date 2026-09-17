@@ -169,13 +169,13 @@ func TestGetRemediationHistory(t *testing.T) {
 	var gotPath string
 	c := testClient(t, func(w http.ResponseWriter, r *http.Request) {
 		gotPath = r.URL.Path
-		_, _ = w.Write([]byte(`{"remediation_history":{"Would Remediate":"2026-09-10T09:52:50Z"},"folder_locations":[{"name":"inbox","display_name":"Inbox"}]}`))
+		_, _ = w.Write([]byte(`{"remediation_history":{"Would Remediate":"2024-01-01T00:00:00Z"},"folder_locations":[{"name":"inbox","display_name":"Inbox"}]}`))
 	})
-	out, err := c.GetRemediationHistory(context.Background(), 8427738389542485252)
+	out, err := c.GetRemediationHistory(context.Background(), 12345)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if gotPath != "/v1/messages/8427738389542485252/remediation_history" {
+	if gotPath != "/v1/messages/12345/remediation_history" {
 		t.Fatalf("path: %q", gotPath)
 	}
 	if out.RemediationHistory["Would Remediate"] == "" {

@@ -4,11 +4,18 @@ All notable changes to this project are documented in this file.
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-09-17
+
 ### Added
 
 - Detection 360 tools: `abnormal_detection360_reports_list` (read) and `abnormal_detection360_report_submit` (gated by `ABNORMAL_ALLOW_RESPONSE` with `confirm: true`) for false positives and missed email reports
 - URL rewrite click events: `abnormal_url_rewrite_clicks_list` (`GET /url-rewrite/clicked-events`)
 - Portal audit logs: `abnormal_audit_logs_list` (`GET /auditlogs`)
+
+### Fixed
+
+- Point Code of Conduct security-advisory link at this repository
+- Replace a live-looking remediation-history message ID in unit tests with a synthetic fixture
 
 ## [1.0.1] - 2026-09-10
 
@@ -36,5 +43,6 @@ First release with all six planned phases: core investigation, response, enrichm
 - Time-window filters on threat and mailbox list tools no longer prefix a duplicate `filter=` in the query value
 - `abnormal_message_remediation_history` decodes `folder_locations` as `{name, display_name}` objects per the live API response
 
+[1.1.0]: https://github.com/GregDog/mcp-server-abnormal/releases/tag/v1.1.0
 [1.0.1]: https://github.com/GregDog/mcp-server-abnormal/releases/tag/v1.0.1
 [1.0.0]: https://github.com/GregDog/mcp-server-abnormal/releases/tag/v1.0.0

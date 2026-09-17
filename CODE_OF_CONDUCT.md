@@ -34,7 +34,7 @@ Examples of unacceptable behavior:
 
 Report unacceptable behavior to the repository maintainer:
 
-- Open a [private security advisory](https://github.com/GregDog/mcp-server-theopenlane/security/advisories/new) if the report involves harassment, personal information, or other sensitive conduct.
+- Open a [private security advisory](https://github.com/GregDog/mcp-server-abnormal/security/advisories/new) if the report involves harassment, personal information, or other sensitive conduct.
 - Otherwise, contact [@GregDog](https://github.com/GregDog) via GitHub (issue comment mentioning the maintainer, or GitHub's contact flow).
 
 All complaints will be reviewed promptly and fairly.

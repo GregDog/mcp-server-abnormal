@@ -3,7 +3,7 @@
   "name": "io.github.GregDog/mcp-server-abnormal",
   "title": "Abnormal MCP Server",
   "description": "Abnormal Security MCP: threats, search, remediation, ATO cases, vendor/BEC, and evidence download.",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "repository": {
     "url": "https://github.com/GregDog/mcp-server-abnormal",
     "source": "github"
@@ -12,7 +12,7 @@
   "packages": [
     {
       "registryType": "oci",
-      "identifier": "ghcr.io/gregdog/mcp-server-abnormal:v1.0.1",
+      "identifier": "ghcr.io/gregdog/mcp-server-abnormal:v1.1.0",
       "transport": {
         "type": "stdio"
       },
